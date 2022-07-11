@@ -6,7 +6,7 @@ class BossRaidHistory(models.Model):
     level = models.PositiveIntegerField('레벨')
     score = models.PositiveIntegerField('점수', default=0)
     enter_time = models.DateTimeField('입장 시간', auto_now_add=True)
-    end_time = models.DateTimeField('퇴장 시간')
+    end_time = models.DateTimeField('퇴장 시간', blank=True)
 
     # user = models.ForeignKey(User, on_delete=models.CASCADE)
 
@@ -23,7 +23,7 @@ class BossRaidHistory(models.Model):
 class BossRaidStatus(models.Model):
     level = models.PositiveIntegerField('레벨')
     is_entered = models.BooleanField('입장 여부', default=False)
-    last_entertime = models.DateTimeField('마지막 입장 시간')
+    last_entertime = models.DateTimeField('마지막 입장 시간', blank=True)
 
     # user = models.ForeignKey(User, on_delete=models.CASCADE)
 
