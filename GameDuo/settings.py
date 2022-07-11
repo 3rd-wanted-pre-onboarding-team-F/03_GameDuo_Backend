@@ -54,6 +54,7 @@ INSTALLED_APPS += [
     'user',
     'bossRaid',
     'rest_framework',
+    'drf_yasg',
 ]
 
 MIDDLEWARE = [

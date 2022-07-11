@@ -1,5 +1,8 @@
 from django.db import models
 
+from user.models import User
+# from django.contrib.auth.models import User
+
 
 # Create your models here.
 class BossRaid(models.Model):
@@ -15,15 +18,13 @@ class BossRaid(models.Model):
         return f'{self.id}, {self.name}'
 
 
-
-
 class BossRaidHistory(models.Model):
     level = models.PositiveIntegerField('레벨')
     score = models.PositiveIntegerField('점수', default=0)
     enter_time = models.DateTimeField('입장 시간', auto_now_add=True)
     end_time = models.DateTimeField('퇴장 시간', auto_now=True)
 
-    # user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     boss_raid = models.ForeignKey(BossRaid, on_delete=models.CASCADE)
 
     class Meta:
@@ -39,9 +40,9 @@ class BossRaidHistory(models.Model):
 class BossRaidStatus(models.Model):
     level = models.PositiveIntegerField('레벨')
     is_entered = models.BooleanField('입장 여부', default=False)
-    last_entertime = models.DateTimeField('마지막 입장 시간', blank=True, auto_now=True)
+    last_entertime = models.DateTimeField('마지막 입장 시간', auto_now_add=True)
 
-    # user = models.OneToOneField(User, on_delete=models.CASCADE)
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
     boss_raid = models.OneToOneField(BossRaid, on_delete=models.CASCADE)
 
     class Meta:
