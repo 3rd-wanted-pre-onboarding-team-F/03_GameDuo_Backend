@@ -2,10 +2,11 @@ from django.shortcuts import render
 from rest_framework import mixins, viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from rest_framework.views import APIView
 
 from bossRaid.serializers import (
     BossRaidStartSerializer,
-    BossRaidEndSerializer,
+    BossRaidEndSerializer, BossRaidStatusSerializer,
 )
 from bossRaid.models import (
     BossRaidHistory,
@@ -65,6 +66,26 @@ class BossRaidEndAPI(viewsets.GenericViewSet):
             )
 
 
+class BossRaidStatusAPI(APIView):
+    """
+    보스 레이드 status 뷰
+    """
+    def get(self, request):
+        try:
+            bossraid_status = BossRaidStatus.objects.all()
+            serializer = BossRaidStatusSerializer(bossraid_status, many=True)
 
-
-
+            result = []
+            for info in serializer.data:
+                result.append({
+                    'bossRaidId': info['boss_raid_id'],
+                    'canEnter': BossRaid.objects.filter(id=info['boss_raid_id']).values('is_entered')[0]['is_entered'],
+                    'enteredUserId': info['user_id']
+                })
+            return Response({
+                "status": result
+            }, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({
+                "message": f"{e}"
+            }, status=status.HTTP_400_BAD_REQUEST)
