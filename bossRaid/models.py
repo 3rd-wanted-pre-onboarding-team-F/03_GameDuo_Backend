@@ -41,8 +41,8 @@ class BossRaidStatus(models.Model):
     level = models.PositiveIntegerField('레벨')
     last_entertime = models.DateTimeField('마지막 입장 시간', auto_now_add=True)
 
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
-    boss_raid = models.OneToOneField(BossRaid, on_delete=models.CASCADE)
+    user = models.OneToOneField(User, on_delete=models.CASCADE, null=True)
+    boss_raid = models.OneToOneField(BossRaid, on_delete=models.CASCADE, null=True)
 
     class Meta:
         db_table = 'tb_boss_status'
@@ -52,7 +52,3 @@ class BossRaidStatus(models.Model):
 
     def __str__(self):
         return f'{self.id}, level = {self.level} -- Boss Raid = {self.boss_raid}'
-
-
-
-
