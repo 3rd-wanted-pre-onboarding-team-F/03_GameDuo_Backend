@@ -1,12 +1,12 @@
 from django.db import models
 
 from user.models import User
-# from django.contrib.auth.models import User
 
 
 # Create your models here.
 class BossRaid(models.Model):
     name = models.CharField('보스 레이드 이름', max_length=100)
+    is_entered = models.BooleanField('입장 여부', default=True)
 
     class Meta:
         db_table = 'db_boss_raid'
@@ -15,7 +15,7 @@ class BossRaid(models.Model):
         verbose_name_plural = '보스 레이드들'
 
     def __str__(self):
-        return f'{self.id}, {self.name}'
+        return f'{self.id}, {self.name} -- is_Entered = {self.is_entered}'
 
 
 class BossRaidHistory(models.Model):
@@ -39,7 +39,6 @@ class BossRaidHistory(models.Model):
 
 class BossRaidStatus(models.Model):
     level = models.PositiveIntegerField('레벨')
-    is_entered = models.BooleanField('입장 여부', default=False)
     last_entertime = models.DateTimeField('마지막 입장 시간', auto_now_add=True)
 
     user = models.OneToOneField(User, on_delete=models.CASCADE)
@@ -52,7 +51,7 @@ class BossRaidStatus(models.Model):
         verbose_name_plural = '보스 레이드 상태들'
 
     def __str__(self):
-        return f'{self.id}, level = {self.level}, is_Entered = {self.is_entered} -- Boss Raid = {self.boss_raid}'
+        return f'{self.id}, level = {self.level} -- Boss Raid = {self.boss_raid}'
 
 
 

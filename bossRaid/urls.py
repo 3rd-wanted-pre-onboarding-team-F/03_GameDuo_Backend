@@ -1,14 +1,19 @@
 from django.urls import path
 
 from bossRaid.views import (
-    BossRaidStartAPI
+    BossRaidStartAPI,
+    BossRaidEndAPI,
 )
 
 raid_start = BossRaidStartAPI.as_view({
     'post': 'enter'
 })
+raid_end = BossRaidEndAPI.as_view({
+    'patch': "end"
+})
 
 
 urlpatterns = [
     path('enter/', raid_start),
+    path('end/', raid_end),
 ]
