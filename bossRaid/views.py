@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
-from django.shortcuts import render
 from rest_framework import mixins, viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from django.core.cache import cache
+from django.db import transaction
 import requests
 import json
 
