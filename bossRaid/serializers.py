@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from django.utils.translation import gettext_lazy as _
-import datetime
+from threading import Timer
 
 from bossRaid.models import (
     BossRaidHistory,
@@ -74,9 +74,19 @@ class BossRaidStartSerializer(serializers.Serializer):
         return level
 
     def validate_boss_raid(self, boss_raid):
+        """
+        request boss_raid 유효성 검사
+        """
         if not boss_raid:
+            """ boss_raid를 입력하지 않았을 때 """
             raise serializers.ValidationError(
                 _('Boss Raid field not allowed empty')
+            )
+
+        if BossRaid.objects.filter(id=boss_raid).values('is_entered')[0]['is_entered'] == False:
+            """ 보스레이드가 이미 실행중 일때 """
+            raise serializers.ValidationError(
+                _('Boss Raid is already Playing')
             )
         return boss_raid
 
@@ -87,13 +97,35 @@ class BossRaidStartSerializer(serializers.Serializer):
         return data
 
     def create(self, validate_data):
+        """
+        Boss Status 데이터 생성
+        """
         status = BossRaidStatus.objects.create(
             level=validate_data['level'],
             user_id=validate_data['user'],
             boss_raid_id=validate_data['boss_raid']
         )
         BossRaid.objects.filter(id=validate_data['boss_raid']).update(is_entered=False)
+
+        def timer_delete():
+            """
+            보스 레이드를 시작하고 사용자가 레이드에 실패 했을 때
+            타이머 동작 (180초)
+            180초 후에 Boss Status가 자동으로 삭제
+            """
+            if status:
+                status.delete()
+                BossRaid.objects.filter(id=validate_data['boss_raid']).update(is_entered=True)
+                BossRaidHistory.objects.create(
+                    level=validate_data['level'],
+                    score=0,
+                    user_id=validate_data['user'],
+                    boss_raid_id=validate_data['boss_raid']
+                )
+        Timer(180, timer_delete).start()
+
         return status
+
 
 
 class BossRaidEndSerializer(serializers.Serializer):
@@ -108,19 +140,18 @@ class BossRaidEndSerializer(serializers.Serializer):
         return obj.id
 
     def validate_userId(self, userId):
+        """
+        request userId 유효성 검사
+        """
         if not userId:
-            """
-            request user가 빈 칸일 때,
-            """
+            """ request user가 빈 칸일 때 """
             raise serializers.ValidationError(
                 _('User ID field not allowed empty')
             )
 
         get_user = User.objects.filter(id=userId)
         if not get_user:
-            """
-            request user가 존재하지 않을 때,
-            """
+            """ request user가 존재하지 않을 때 """
             raise serializers.ValidationError(
                 _('User ID does not exist')
             )
@@ -128,13 +159,18 @@ class BossRaidEndSerializer(serializers.Serializer):
         return userId
 
     def validate_raidRecordId(self, raidRecoreId):
+        """
+        request raidRecordId 유효성 검사
+        """
         if not raidRecoreId:
+            """ raidRecordId를 입력하지 않았을 때"""
             raise serializers.ValidationError(
                 _('raidRecordId field not allowed empty')
             )
 
         get_raid = BossRaidStatus.objects.filter(id=raidRecoreId)
         if not get_raid:
+            """ 보스 레이드가 이미 실행중 일때"""
             raise serializers.ValidationError(
                 _('raidRecordId does not exist')
             )
@@ -142,7 +178,11 @@ class BossRaidEndSerializer(serializers.Serializer):
         return raidRecoreId
 
     def validate_boss_raid(self, boss_raid):
+        """
+        request boss_raid 유효성 검사
+        """
         if not boss_raid:
+            """ boss_raid를 입력하지 않았을 때 """
             raise serializers.ValidationError(
                 _('Boss Raid field not allowed empty')
             )
@@ -155,6 +195,10 @@ class BossRaidEndSerializer(serializers.Serializer):
         return data
 
     def create(self, validate_data):
+        """
+        보스레이드 종료 시 점수 반환 및 Boss Status 데이터 삭제
+        BossRaid의 is_entered 필드의 입장 가능 여부를 True로 수정
+        """
         get_level = BossRaidStatus.objects.filter(id=validate_data['raidRecordId']).values('level')[0]['level']
         if get_level == 1:
             score = 20
@@ -162,7 +206,6 @@ class BossRaidEndSerializer(serializers.Serializer):
             score = 47
         else:
             score = 85
-        print(get_level, score)
         status_history = BossRaidHistory.objects.create(
             level=get_level,
             score=score,
