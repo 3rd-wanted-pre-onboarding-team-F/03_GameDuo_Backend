@@ -49,3 +49,5 @@ def login(request):
             return HttpResponse(status=200)
         else:
             return HttpResponse(status=400)
+    else:
+        return JsonResponse({'message':'This method is not allowed.'}, status = 400)
