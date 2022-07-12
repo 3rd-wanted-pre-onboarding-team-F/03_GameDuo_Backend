@@ -157,7 +157,7 @@ class BossRaidEndSerializer(serializers.Serializer):
     def create(self, validate_data):
         get_level = BossRaidStatus.objects.filter(id=validate_data['raidRecordId']).values('level')[0]['level']
         if get_level == 1:
-            score = 20,
+            score = 20
         elif get_level == 2:
             score = 47
         else:
@@ -170,6 +170,7 @@ class BossRaidEndSerializer(serializers.Serializer):
             boss_raid_id=validate_data['boss_raid']
         )
         BossRaidStatus.objects.filter(id=validate_data['raidRecordId']).delete()
+        BossRaid.objects.filter(id=validate_data['boss_raid']).update(is_entered=True)
         return status_history
 
 
