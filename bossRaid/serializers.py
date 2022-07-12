@@ -217,4 +217,7 @@ class BossRaidEndSerializer(serializers.Serializer):
         return status_history
 
 
-
+class BossRaidStatusSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = BossRaidStatus
+        fields = ('id', 'user_id', 'level', 'boss_raid_id', 'last_entertime')
