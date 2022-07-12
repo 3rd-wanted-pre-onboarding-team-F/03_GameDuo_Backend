@@ -1,6 +1,8 @@
 from rest_framework import serializers
 from django.utils.translation import gettext_lazy as _
 from threading import Timer
+from django.core.cache import cache
+import requests
 
 from bossRaid.models import (
     BossRaidHistory,
@@ -8,6 +10,17 @@ from bossRaid.models import (
     BossRaid,
 )
 from user.models import User
+
+
+class BossRaidSerializer(serializers.ModelSerializer):
+    """
+    게임 접속 시리얼라이저
+    """
+    class Meta:
+        model = BossRaid
+        fields = [
+            'id', 'name'
+        ]
 
 
 class BossRaidStartSerializer(serializers.Serializer):
@@ -199,13 +212,17 @@ class BossRaidEndSerializer(serializers.Serializer):
         보스레이드 종료 시 점수 반환 및 Boss Status 데이터 삭제
         BossRaid의 is_entered 필드의 입장 가능 여부를 True로 수정
         """
+
         get_level = BossRaidStatus.objects.filter(id=validate_data['raidRecordId']).values('level')[0]['level']
-        if get_level == 1:
-            score = 20
-        elif get_level == 2:
-            score = 47
+        level = cache.get('score_data').json()['bossRaids'][0]['levels']
+        if get_level == level[0]['score']:
+            score = level[0]['level']
+        elif get_level == level[1]['level']:
+            score = level[0]['score']
+        elif get_level == level[2]['level']:
+            score = level[0]['score']
         else:
-            score = 85
+            score = 0
         status_history = BossRaidHistory.objects.create(
             level=get_level,
             score=score,
