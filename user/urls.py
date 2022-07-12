@@ -1,7 +1,11 @@
 from django.urls import path 
-from .views import RegisterView
+from django.conf.urls import include
+from user import views
 
 
 urlpatterns = [
-    path('register/', RegisterView.as_view()),
+    path('', views.account_list),
+    path('<int:pk>', views.account),
+    path('login', views.login),
+    path('auth', include('rest_framework.urls', namespace='rest_framework'))
 ]
