@@ -17,6 +17,6 @@ raid_end = BossRaidEndAPI.as_view({
 urlpatterns = [
     path('enter/', raid_start),
     path('end/', raid_end),
-    path('bossRaid/', BossRaidStatusAPI.as_view())
-    path('user/', include('user.urls'))
+    path('bossRaid/', BossRaidStatusAPI.as_view()),
+    path('user/', include('user.urls')),
 ]
