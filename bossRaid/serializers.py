@@ -11,6 +11,10 @@ from bossRaid.models import (
     BossRaidStatus,
     BossRaid,
 )
+from bossRaid.services import (
+    StatusService,
+    HistoryService,
+)
 from user.models import User, TotalScore
 
 
@@ -113,7 +117,15 @@ class BossRaidStartSerializer(serializers.Serializer):
                 _('Boss Raid field not allowed empty')
             )
 
-        if BossRaid.objects.filter(id=boss_raid).values('is_entered')[0]['is_entered'] == False:
+        get_boss = BossRaid.objects.filter(id=boss_raid)
+        if not get_boss.exists():
+            """ 보스 레이드가 존재하지 않을 때 """
+            raise serializers.ValidationError(
+                _('Boss raid does not exist')
+            )
+
+        get_boss_id = BossRaid.objects.get(id=boss_raid)
+        if get_boss_id.is_entered == False:
             """ 보스레이드가 이미 실행중 일때 """
             raise serializers.ValidationError(
                 _('Boss Raid is already Playing')
@@ -131,12 +143,8 @@ class BossRaidStartSerializer(serializers.Serializer):
         """
         Boss Status 데이터 생성
         """
-        status = BossRaidStatus.objects.create(
-            level=validate_data['level'],
-            user_id=validate_data['user'],
-            boss_raid_id=validate_data['boss_raid']
-        )
-        BossRaid.objects.filter(id=validate_data['boss_raid']).update(is_entered=False)
+        set_status_create = StatusService()
+        status = set_status_create.set_status(validate_data)
         boss_time = cache.get('score_data').json()['bossRaids'][0]['bossRaidLimitSeconds']
 
         def timer_delete():
@@ -146,17 +154,10 @@ class BossRaidStartSerializer(serializers.Serializer):
             180초 후에 Boss Status가 자동으로 삭제
             """
             if status:
-                status.delete()
-                is_enter = BossRaid.objects.get(id=validate_data['boss_raid'])
-                is_enter.is_entered = True
-                is_enter.save()
-                BossRaidHistory.objects.create(
-                    level=validate_data['level'],
-                    score=0,
-                    user_id=validate_data['user'],
-                    boss_raid_id=validate_data['boss_raid']
-                )
-        Timer(boss_time, timer_delete).start()
+                set_create_timer = StatusService()
+                set_create_timer.set_timer(validate_data, status)
+
+        Timer(30, timer_delete).start()
 
         return status
 
@@ -233,27 +234,8 @@ class BossRaidEndSerializer(serializers.Serializer):
         보스레이드 종료 시 점수 반환 및 Boss Status 데이터 삭제
         BossRaid의 is_entered 필드의 입장 가능 여부를 True로 수정
         """
-
-        get_level = BossRaidStatus.objects.filter(
-            id=validate_data['raidRecordId']
-        ).values('level')[0]['level']
-        level = cache.get('score_data').json()['bossRaids'][0]['levels']
-
-        if get_level - 1 == level[0]['level']:
-            score = level[0]['score']
-        elif get_level - 1 == level[1]['level']:
-            score = level[1]['score']
-        elif get_level - 1 == level[2]['level']:
-            score = level[2]['score']
-        else:
-            score = 0
-        status_history = BossRaidHistory.objects.create(
-            level=get_level,
-            score=score,
-            user_id=validate_data['userId'],
-            boss_raid_id=validate_data['boss_raid']
-        )
-        BossRaidStatus.objects.filter(id=validate_data['raidRecordId']).delete()
+        set_create_history = HistoryService()
+        history = set_create_history.set_history(validate_data)
 
         sum = BossRaidHistory.objects.aggregate(Sum('score'))['score__sum']
         user = TotalScore.objects.select_for_update(nowait=True).get(user_id=validate_data['userId'])
@@ -263,7 +245,7 @@ class BossRaidEndSerializer(serializers.Serializer):
         is_enter = BossRaid.objects.select_for_update(nowait=True).get(id=validate_data['boss_raid'])
         is_enter.is_entered = True
         is_enter.save()
-        return status_history
+        return history
 
 
 class BossRaidStatusSerializer(serializers.ModelSerializer):
