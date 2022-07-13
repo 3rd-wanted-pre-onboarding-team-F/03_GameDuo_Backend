@@ -1,13 +1,44 @@
 from rest_framework import serializers
-from django.contrib.auth.models import User
 from django.utils.translation import gettext_lazy as _
 from threading import Timer
+from django.core.cache import cache
+from django.db import transaction
+from django.db.models import Sum
+
 
 from bossRaid.models import (
     BossRaidHistory,
     BossRaidStatus,
     BossRaid,
 )
+from user.models import User, TotalScore
+
+
+class BossRaidSerializer(serializers.ModelSerializer):
+    """
+    게임 접속 시리얼라이저
+    """
+    class Meta:
+        model = BossRaid
+        fields = [
+            'id', 'name'
+        ]
+
+
+class BossRaidHistorySerializer(serializers.ModelSerializer):
+    """
+    보스 레이드 히스토리 시리얼라이저
+    """
+
+    class Meta:
+        model = BossRaidHistory
+        fields = [
+            'id',
+            'score',
+            'enter_time',
+            'end_time',
+        ]
+
 
 class BossRaidStartSerializer(serializers.Serializer):
     """
@@ -95,6 +126,7 @@ class BossRaidStartSerializer(serializers.Serializer):
         data['boss_raid'] = self.validate_boss_raid(data['boss_raid'])
         return data
 
+    @transaction.atomic()
     def create(self, validate_data):
         """
         Boss Status 데이터 생성
@@ -105,6 +137,7 @@ class BossRaidStartSerializer(serializers.Serializer):
             boss_raid_id=validate_data['boss_raid']
         )
         BossRaid.objects.filter(id=validate_data['boss_raid']).update(is_entered=False)
+        boss_time = cache.get('score_data').json()['bossRaids'][0]['bossRaidLimitSeconds']
 
         def timer_delete():
             """
@@ -114,17 +147,18 @@ class BossRaidStartSerializer(serializers.Serializer):
             """
             if status:
                 status.delete()
-                BossRaid.objects.filter(id=validate_data['boss_raid']).update(is_entered=True)
+                is_enter = BossRaid.objects.select_for_update(nowait=True).get(id=validate_data['boss_raid'])
+                is_enter.is_entered = True
+                is_enter.save()
                 BossRaidHistory.objects.create(
                     level=validate_data['level'],
                     score=0,
                     user_id=validate_data['user'],
                     boss_raid_id=validate_data['boss_raid']
                 )
-        Timer(180, timer_delete).start()
+        Timer(boss_time, timer_delete).start()
 
         return status
-
 
 
 class BossRaidEndSerializer(serializers.Serializer):
@@ -193,18 +227,26 @@ class BossRaidEndSerializer(serializers.Serializer):
         data['boss_raid'] = self.validate_boss_raid(data['boss_raid'])
         return data
 
+    @transaction.atomic()
     def create(self, validate_data):
         """
         보스레이드 종료 시 점수 반환 및 Boss Status 데이터 삭제
         BossRaid의 is_entered 필드의 입장 가능 여부를 True로 수정
         """
-        get_level = BossRaidStatus.objects.filter(id=validate_data['raidRecordId']).values('level')[0]['level']
-        if get_level == 1:
-            score = 20
-        elif get_level == 2:
-            score = 47
+
+        get_level = BossRaidStatus.objects.filter(
+            id=validate_data['raidRecordId']
+        ).values('level')[0]['level']
+        level = cache.get('score_data').json()['bossRaids'][0]['levels']
+
+        if get_level - 1 == level[0]['level']:
+            score = level[0]['score']
+        elif get_level - 1 == level[1]['level']:
+            score = level[1]['score']
+        elif get_level - 1 == level[2]['level']:
+            score = level[2]['score']
         else:
-            score = 85
+            score = 0
         status_history = BossRaidHistory.objects.create(
             level=get_level,
             score=score,
@@ -212,7 +254,15 @@ class BossRaidEndSerializer(serializers.Serializer):
             boss_raid_id=validate_data['boss_raid']
         )
         BossRaidStatus.objects.filter(id=validate_data['raidRecordId']).delete()
-        BossRaid.objects.filter(id=validate_data['boss_raid']).update(is_entered=True)
+
+        sum = BossRaidHistory.objects.aggregate(Sum('score'))['score__sum']
+        user = TotalScore.objects.select_for_update(nowait=True).get(user_id=validate_data['userId'])
+        user.total_score = sum
+        user.save()
+
+        is_enter = BossRaid.objects.select_for_update(nowait=True).get(id=validate_data['boss_raid'])
+        is_enter.is_entered = True
+        is_enter.save()
         return status_history
 
 

@@ -1,8 +1,15 @@
 from django.urls import path 
-from .views import RegisterView, LoginView, TotalScoreView
+from django.conf.urls import include
+from .views import RegisterView, LoginView, TotalScoreAPI
+
+
+user_detail = TotalScoreAPI.as_view({
+    'get': 'retrieve'
+})
+
 
 urlpatterns = [
-    path('register/', RegisterView.as_view()),
-    path('<int:pk>/', TotalScoreView.as_view()),
+    path('<int:user_id>/', user_detail),
     path('login/', LoginView.as_view()),
+    path('register/', RegisterView.as_view()),
 ]
