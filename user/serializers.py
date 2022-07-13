@@ -1,6 +1,7 @@
 from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
 from rest_framework import serializers
+from .models import TotalScore
 
 class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(
@@ -33,3 +34,9 @@ class LoginSerializer(serializers.ModelSerializer):
         raise serializers.ValidationError(
             {"error":"This user is not exists"}
         )
+        
+class TotalScoreSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TotalScore
+        fields = ("user", "total_score")
+        
