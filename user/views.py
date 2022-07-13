@@ -1,10 +1,10 @@
 from django.contrib.auth.models import User
 from rest_framework import generics, status
 from rest_framework.response import Response
-from .serializers import LoginSerializer, RegisterSerializer
 from drf_yasg.utils import swagger_auto_schema
 from .user_api_params import user_post_params
-
+from .serializers import LoginSerializer, RegisterSerializer, TotalScoreSerializer
+from .models import TotalScore
 
 
 
@@ -21,10 +21,6 @@ class LoginView(generics.GenericAPIView):
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(status=status.HTTP_400_BAD_REQUEST)
     
-class UserView(generics.RetrieveAPIView):
-    serializer_class = LoginSerializer
-    def get(self, request, pk):
-        user = User.objects.get(id=pk)
-        if user:
-            return Response(LoginSerializer(user).data, status=status.HTTP_200_OK)
-        return Response(status=status.HTTP_400_BAD_REQUEST)
+class TotalScoreView(generics.RetrieveUpdateAPIView):
+    queryset = TotalScore.objects.all()
+    serializer_class = TotalScoreSerializer
