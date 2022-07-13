@@ -8,5 +8,12 @@ class User(models.Model):
         db_table = 'users'
     
     
+class TotalScore(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    total_score = models.IntegerField('총 합 점수', default=0)
 
+    class Meta:
+        db_table = 'tb_total_score'
 
+    def __str__(self):
+        return f'User = {self.user} --- Total Score = {self.total_score}'

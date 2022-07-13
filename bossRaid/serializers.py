@@ -145,7 +145,6 @@ class BossRaidStartSerializer(serializers.Serializer):
         return status
 
 
-
 class BossRaidEndSerializer(serializers.Serializer):
     userId = serializers.IntegerField(write_only=True)
     raidRecordId = serializers.IntegerField(write_only=True)
