@@ -16,4 +16,4 @@ class TotalScore(models.Model):
         db_table = 'tb_total_score'
 
     def __str__(self):
-        return f'User = {self.user} --- Total Score = {self.total_score}'
+        return f'User = {self.user.username} --- Total Score = {self.total_score}'

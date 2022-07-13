@@ -3,14 +3,15 @@ from django.utils.translation import gettext_lazy as _
 from threading import Timer
 from django.core.cache import cache
 from django.db import transaction
-import requests
+from django.db.models import Sum
+
 
 from bossRaid.models import (
     BossRaidHistory,
     BossRaidStatus,
     BossRaid,
 )
-from user.models import User
+from user.models import User, TotalScore
 
 
 class BossRaidSerializer(serializers.ModelSerializer):
@@ -21,6 +22,21 @@ class BossRaidSerializer(serializers.ModelSerializer):
         model = BossRaid
         fields = [
             'id', 'name'
+        ]
+
+
+class BossRaidHistorySerializer(serializers.ModelSerializer):
+    """
+    보스 레이드 히스토리 시리얼라이저
+    """
+
+    class Meta:
+        model = BossRaidHistory
+        fields = [
+            'id',
+            'score',
+            'enter_time',
+            'end_time',
         ]
 
 
@@ -238,6 +254,12 @@ class BossRaidEndSerializer(serializers.Serializer):
             boss_raid_id=validate_data['boss_raid']
         )
         BossRaidStatus.objects.filter(id=validate_data['raidRecordId']).delete()
+
+        sum = BossRaidHistory.objects.aggregate(Sum('score'))['score__sum']
+        user = TotalScore.objects.select_for_update(nowait=True).get(user_id=validate_data['userId'])
+        user.total_score = sum
+        user.save()
+
         is_enter = BossRaid.objects.select_for_update(nowait=True).get(id=validate_data['boss_raid'])
         is_enter.is_entered = True
         is_enter.save()

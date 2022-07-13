@@ -1,8 +1,15 @@
 from django.http import HttpResponse, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.parsers import JSONParser
-from .serializers import AccountSerializer
-from .models import User
+from rest_framework import mixins, viewsets, status
+from rest_framework.response import Response
+from django.db.models import Sum
+
+from user.serializers import AccountSerializer
+from user.models import User, TotalScore
+from user.serializers import TotalScoreSerializer
+from bossRaid.models import BossRaidHistory
+from bossRaid.serializers import BossRaidHistorySerializer
 
 @csrf_exempt
 def account_list(request):
@@ -50,4 +57,38 @@ def login(request):
         else:
             return HttpResponse(status=400)
     else:
-        return JsonResponse({'message':'This method is not allowed.'}, status = 400)
+        return JsonResponse({'message':'This method is not allowed.'}, status=400)
+
+
+class TotalScoreAPI(mixins.RetrieveModelMixin,
+                    viewsets.GenericViewSet):
+    """
+    토탈 스토어 조회
+    """
+
+    lookup_url_kwarg = 'user_id'
+
+    def get_queryset(self):
+        return User.objects.all()
+
+    def get_serializer_class(self):
+        return TotalScoreSerializer
+
+    def retrieve(self, request, *args, **kwargs):
+        pk = self.kwargs['user_id']
+        history = BossRaidHistory.objects.filter(user_id=pk).all()
+        boss_history = BossRaidHistorySerializer(history, many=True)
+
+        # 사용자 상세 조회 시 총합 점수 및 히스토리 반환
+        user = TotalScore.objects.get(user_id=pk)
+        sum = BossRaidHistory.objects.aggregate(Sum('score'))['score__sum']
+        user.total_score = sum
+        user.save()
+
+        res = {
+            'totalScore': sum,
+            'bossRaidHistory': boss_history.data
+        }
+
+        return Response(res, status=status.HTTP_200_OK)
+
