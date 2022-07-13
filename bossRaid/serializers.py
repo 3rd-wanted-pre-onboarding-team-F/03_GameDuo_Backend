@@ -147,7 +147,7 @@ class BossRaidStartSerializer(serializers.Serializer):
             """
             if status:
                 status.delete()
-                is_enter = BossRaid.objects.select_for_update(nowait=True).get(id=validate_data['boss_raid'])
+                is_enter = BossRaid.objects.get(id=validate_data['boss_raid'])
                 is_enter.is_entered = True
                 is_enter.save()
                 BossRaidHistory.objects.create(

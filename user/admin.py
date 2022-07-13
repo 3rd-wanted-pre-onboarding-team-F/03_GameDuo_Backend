@@ -1,5 +1,5 @@
 from django.contrib import admin
-from user.models import User, TotalScore
+from user.models import TotalScore
 
 
 # Register your models here.
