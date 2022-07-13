@@ -1,4 +1,5 @@
 from django.shortcuts import render
+from django.contrib.auth.models import User
 from rest_framework import mixins, viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -13,7 +14,6 @@ from bossRaid.models import (
     BossRaidStatus,
     BossRaid
 )
-from user.models import User
 
 
 class BossRaidStartAPI(viewsets.GenericViewSet):
