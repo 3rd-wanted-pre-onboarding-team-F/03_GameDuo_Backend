@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from django.contrib.auth.models import User
 from django.utils.translation import gettext_lazy as _
 from threading import Timer
 
@@ -7,8 +8,6 @@ from bossRaid.models import (
     BossRaidStatus,
     BossRaid,
 )
-from user.models import User
-
 
 class BossRaidStartSerializer(serializers.Serializer):
     """
