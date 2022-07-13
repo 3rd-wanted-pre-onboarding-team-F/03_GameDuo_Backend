@@ -1,22 +1,64 @@
-from django.shortcuts import render
-from django.contrib.auth.models import User
+# -*- coding: utf-8 -*-
 from rest_framework import mixins, viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import status
-
+from django.core.cache import cache
+from django.db import transaction
 from bossRaid.serializers import (
     BossRaidStartSerializer,
-    BossRaidEndSerializer, BossRaidStatusSerializer,
+    BossRaidEndSerializer,
+    BossRaidStatusSerializer,
+    BossRaidSerializer,
 )
 from bossRaid.models import (
     BossRaidHistory,
     BossRaidStatus,
     BossRaid
 )
-from user.models import TotalScore
+from user.models import (
+    TotalScore,
+    User,
+)
 from user.serializers import TotalScoreSerializer
+
+import requests
+import json
+
+
+class BossRaidAPI(mixins.RetrieveModelMixin,
+                  viewsets.GenericViewSet):
+    """
+    게임 접속
+    캐시에 S3 static data 저장
+    """
+
+    lookup_url_kwarg = 'game_id'
+
+    def get_queryset(self):
+        return BossRaid.objects.all()
+
+    def get_serializer_class(self):
+        return BossRaidSerializer
+
+    def retrieve(self, request, *args, **kwargs):
+        response = super().retrieve(request, *args, **kwargs)
+
+        url = requests.get('https://dmpilf5svl7rv.cloudfront.net/assignment/backend/bossRaidData.json')
+
+        # if not url.raise_for_status():
+        #     return Response(status=status.HTTP_400_BAD_REQUEST)
+
+        url.encoding = 'utf-8'
+        cache.get_or_set('score_data', url)
+
+        res = {
+            'Boss Raid': response.data,
+        }
+
+        return Response(res, status=status.HTTP_200_OK)
+
 
 class BossRaidStartAPI(viewsets.GenericViewSet):
     """

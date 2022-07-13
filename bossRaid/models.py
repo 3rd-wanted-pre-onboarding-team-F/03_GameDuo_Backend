@@ -33,7 +33,7 @@ class BossRaidHistory(models.Model):
         verbose_name_plural = '보스 레이드 기록들'
 
     def __str__(self):
-        return f'{self.id}, level = {self.level}, score = {self.score} -- Boss Raid = {self.boss_raid}'
+        return f'{self.id}, level = {self.level}, score = {self.score} -- Boss Raid = {self.boss_raid.name}'
 
 
 class BossRaidStatus(models.Model):
