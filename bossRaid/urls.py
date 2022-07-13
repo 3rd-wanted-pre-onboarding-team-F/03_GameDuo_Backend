@@ -1,4 +1,4 @@
-from django.urls import path
+from django.urls import path, include
 
 from bossRaid.views import (
     BossRaidStartAPI,
@@ -17,5 +17,6 @@ raid_end = BossRaidEndAPI.as_view({
 urlpatterns = [
     path('enter/', raid_start),
     path('end/', raid_end),
-    path('bossRaid/', BossRaidStatusAPI.as_view())
+    path('bossRaid/', BossRaidStatusAPI.as_view()),
+    path('user/', include('user.urls')),
 ]
