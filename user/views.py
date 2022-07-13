@@ -22,6 +22,7 @@ class LoginView(generics.GenericAPIView):
         return Response(status=status.HTTP_400_BAD_REQUEST)
     
 class UserView(generics.RetrieveAPIView):
+    serializer_class = LoginSerializer
     def get(self, request, pk):
         user = User.objects.get(id=pk)
         if user:
