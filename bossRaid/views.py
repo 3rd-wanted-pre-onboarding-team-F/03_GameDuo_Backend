@@ -4,6 +4,7 @@ from rest_framework import mixins, viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework import status
 
 from bossRaid.serializers import (
     BossRaidStartSerializer,
@@ -14,7 +15,8 @@ from bossRaid.models import (
     BossRaidStatus,
     BossRaid
 )
-
+from user.models import TotalScore
+from user.serializers import TotalScoreSerializer
 
 class BossRaidStartAPI(viewsets.GenericViewSet):
     """
@@ -89,3 +91,15 @@ class BossRaidStatusAPI(APIView):
             return Response({
                 "message": f"{e}"
             }, status=status.HTTP_400_BAD_REQUEST)
+            
+
+class BossRaidRankingAPI(APIView):
+    
+    def get(self, request):
+        ranking_scores = TotalScore.objects.all()
+        user_score = TotalScore.objects.get(pk=request.GET.get('userId'))
+        res = {
+            'topRankerInfoList' : TotalScoreSerializer(ranking_scores, many=True).data,
+            'myRankingInfo': TotalScoreSerializer(user_score).data
+        }
+        return Response(res, status=status.HTTP_200_OK)
