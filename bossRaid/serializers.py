@@ -4,15 +4,13 @@ from threading import Timer
 from django.core.cache import cache
 from django.db import transaction
 from django.db.models import Sum
-
-
 from bossRaid.models import (
     BossRaidHistory,
     BossRaidStatus,
     BossRaid,
 )
 from user.models import User, TotalScore
-
+from bossRaid.cache_data import RankingDataService
 
 class BossRaidSerializer(serializers.ModelSerializer):
     """
@@ -257,6 +255,7 @@ class BossRaidEndSerializer(serializers.Serializer):
 
         sum = BossRaidHistory.objects.aggregate(Sum('score'))['score__sum']
         user = TotalScore.objects.select_for_update(nowait=True).get(user_id=validate_data['userId'])
+        RankingDataService.set_user_ranking_data(validate_data['userId'], sum)
         user.total_score = sum
         user.save()
 
