@@ -238,11 +238,11 @@ class BossRaidEndSerializer(serializers.Serializer):
         history = set_create_history.set_history(validate_data)
 
         sum = BossRaidHistory.objects.aggregate(Sum('score'))['score__sum']
-        user = TotalScore.objects.select_for_update(nowait=True).get(user_id=validate_data['userId'])
+        user = TotalScore.objects.select_for_update().get(user_id=validate_data['userId'])
         user.total_score = sum
         user.save()
 
-        is_enter = BossRaid.objects.select_for_update(nowait=True).get(id=validate_data['boss_raid'])
+        is_enter = BossRaid.objects.select_for_update().get(id=validate_data['boss_raid'])
         is_enter.is_entered = True
         is_enter.save()
         return history
