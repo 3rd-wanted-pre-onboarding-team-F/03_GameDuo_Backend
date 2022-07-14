@@ -46,7 +46,7 @@
       - 중복되지 않는 userId 생성
           - 생성된 userId 응답
       - 유저 조회
-      - 해당 유저의 보스레이드 총 점수와 참여기록 응답
+          - 해당 유저의 보스레이드 총 점수와 참여기록 응답
       - 보스레이드 상태 조회
           - 보스레이드 현재 상태 응답
               - canEnter: 입장 가능 여부
@@ -76,20 +76,89 @@
 
 
 
+  ### 로직 패턴
+
+  - 설명
+
+
+
+  ### 데이터 다이어그램
+
+  - 설명
+
+
+
 ### API 명세서
 
 | ID   | URI                     | METHOD | 기능                 |
 | ---- | ----------------------- | ------ | -------------------- |
 | 1    | /user                   | POST   | 유저 생성            |
-| 2    | /user/<int: user_id>    | GET    | 유저 조회            |
+| 2    | /user/<int: user_id>    | GET    | 유저 정보 조회       |
 | 3    | /bossRaid               | GET    | 보스레이드 상태 조회 |
 | 4    | /bossRaid/enter         | POST   | 보스레이드 시작      |
 | 5    | /bossRaid/end           | PATCH  | 보스레이드 종료      |
 | 6    | /bossRaid/topRankerList | GET    | 랭킹조회             |
 
+
+
 ### ERD
 
-사진
+<img src="https://user-images.githubusercontent.com/44389424/178653804-f23aedb0-85ec-4fe5-8ec8-075227eb0ecb.JPG"/>
+<br>
+
+- Users: 회원 정보
+
+  | 필드명    | 타입   | 비고 |
+  | --------- | ------ | ---- |
+  | id        | Int    | PK   |
+  | user_name | String |      |
+  | password  | String |      |
+
+  
+
+- Total Score: 보스레이드에서 얻은 유저 별 총 점수
+
+  | 필드명      | 타입 | 비고                   |
+  | ----------- | ---- | ---------------------- |
+  | id          | Int  | PK                     |
+  | user_id     | Int  | Foreign Key (users:id) |
+  | total_score | Int  |                        |
+
+  
+
+- BossRaid: 보스레이드
+
+  | 필드명     | 타입    | 비고 |
+  | ---------- | ------- | ---- |
+  | id         | Int     | PK   |
+  | is_entered | Boolean |      |
+
+  
+
+- BossRaidHistory: 보스레이드 시작 및 종료 기록
+
+  | 필드명      | 타입     | 비고                      |
+  | ----------- | -------- | ------------------------- |
+  | id          | Int      | PK                        |
+  | user_id     | Int      | Foreign Key (users:id)    |
+  | bossraid_id | Int      | Foreign Key (bossraid:id) |
+  | level       | Int      |                           |
+  | score       | Int      |                           |
+  | enter_time  | Datetime |                           |
+  | end_time    | Datetime |                           |
+
+  
+
+- BossRaidStatus: 보스레이드 상태
+
+  | 필드명         | 타입     | 비고                      |
+  | -------------- | -------- | ------------------------- |
+  | id             | Int      | PK                        |
+  | user_id        | Int      | Foreign Key (users:id)    |
+  | bossraid_id    | Int      | Foreign Key (bossraid:id) |
+  | level          | Int      |                           |
+  | last_entertime | Datetime |                           |
+
 <br><br>
 </div>
 
