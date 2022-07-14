@@ -17,11 +17,12 @@ from bossRaid.models import (
     BossRaidStatus,
     BossRaid
 )
+from user.serializers import TotalScoreSerializer
 from user.models import (
     TotalScore,
     User,
 )
-from user.serializers import TotalScoreSerializer
+from bossRaid.cache_data import RankingDataService
 
 import requests
 import json
@@ -138,10 +139,21 @@ class BossRaidStatusAPI(APIView):
 class BossRaidRankingAPI(APIView):
     
     def get(self, request):
-        ranking_scores = TotalScore.objects.all()
-        user_score = TotalScore.objects.get(pk=request.GET.get('userId'))
-        res = {
-            'topRankerInfoList' : TotalScoreSerializer(ranking_scores, many=True).data,
-            'myRankingInfo': TotalScoreSerializer(user_score).data
-        }
-        return Response(res, status=status.HTTP_200_OK)
+        try:
+            user_id = request.GET.get('userId')
+            if user_id:
+                ranking_list = RankingDataService.get_ranking_data()
+                user_ranking = RankingDataService.get_user_ranking_data(request.GET.get('userId'))
+                res = {
+                    'topRankerInfoList' : ranking_list,
+                    'myRankingInfo': user_ranking
+                }
+                return Response(res, status=status.HTTP_200_OK)
+            return Response(
+                {"message": "유효하지 않은 user ID 입니다."},
+                status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            return Response({
+                "message": f"{e}"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
