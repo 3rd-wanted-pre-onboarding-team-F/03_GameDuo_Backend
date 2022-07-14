@@ -140,6 +140,10 @@ ENV/
 env.bak/
 venv.bak/
 
+#Db migrations
+user/migrations
+bossRaid/migrations
+
 # Spyder project settings
 .spyderproject
 .spyproject

@@ -3,11 +3,9 @@ from rest_framework import mixins, viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework import status
 from django.core.cache import cache
 from django.db import transaction
-import requests
-import json
-
 from bossRaid.serializers import (
     BossRaidStartSerializer,
     BossRaidEndSerializer,
@@ -19,7 +17,15 @@ from bossRaid.models import (
     BossRaidStatus,
     BossRaid
 )
-from user.models import User
+from user.serializers import TotalScoreSerializer
+from user.models import (
+    TotalScore,
+    User,
+)
+from bossRaid.cache_data import RankingDataService
+
+import requests
+import json
 
 
 class BossRaidAPI(mixins.RetrieveModelMixin,
@@ -128,3 +134,26 @@ class BossRaidStatusAPI(APIView):
             return Response({
                 "message": f"{e}"
             }, status=status.HTTP_400_BAD_REQUEST)
+            
+
+class BossRaidRankingAPI(APIView):
+    
+    def get(self, request):
+        try:
+            user_id = request.GET.get('userId')
+            if user_id:
+                ranking_list = RankingDataService.get_ranking_data()
+                user_ranking = RankingDataService.get_user_ranking_data(request.GET.get('userId'))
+                res = {
+                    'topRankerInfoList' : ranking_list,
+                    'myRankingInfo': user_ranking
+                }
+                return Response(res, status=status.HTTP_200_OK)
+            return Response(
+                {"message": "유효하지 않은 user ID 입니다."},
+                status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            return Response({
+                "message": f"{e}"},
+                status=status.HTTP_400_BAD_REQUEST
+            )

@@ -4,6 +4,7 @@ from bossRaid.views import (
     BossRaidStartAPI,
     BossRaidEndAPI,
     BossRaidStatusAPI,
+    BossRaidRankingAPI,
     BossRaidAPI,
 )
 
@@ -22,5 +23,6 @@ urlpatterns = [
     path('<int:game_id>/', boss_raid),
     path('enter/', raid_start),
     path('end/', raid_end),
-    path('bossRaid/', BossRaidStatusAPI.as_view())
+    path('bossRaid/', BossRaidStatusAPI.as_view()),
+    path('topRankerList/', BossRaidRankingAPI.as_view()),
 ]
