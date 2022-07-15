@@ -80,3 +80,63 @@ class HistoryService(object):
         return history
 
 
+class RankingDataService:
+    """
+    author : 전재완
+    explanation : 캐시 데이터를 조회, 수정하는 서비스
+    """
+
+    def get_ranking_data():
+        """
+        author : 전재완
+        return : list
+        explanation : 전체 유저를 total score 기준으로 정렬하여 리스트로 반환
+        """
+
+        ranking_list = []
+        ranking_dict = cache.get("ranking_dict")
+        rank = 1
+
+        for score_key in ranking_dict.keys():
+            for user in ranking_dict[score_key]:
+                ranking_list.append(
+                    {"ranking": rank, "userId": user, "totalScore": score_key}
+                )
+            rank += len(ranking_dict[score_key])
+        return ranking_list
+
+    def get_user_ranking_data(user_id):
+        """
+        author : 전재완
+        param : user_id(str)
+        return : dict
+        explanation : 입력 받은 user_id에 해당하는 유저의 랭킹과 total score를 dictionary로 반환
+        """
+
+        ranking_dict = cache.get("ranking_dict")
+        user_ranking = {}
+        rank = 1
+
+        for score_key in ranking_dict.keys():
+            if user_id in ranking_dict[score_key]:
+                user_ranking["ranking"] = rank
+                user_ranking["userId"] = user_id
+                user_ranking["totalScore"] = score_key
+                break
+            rank += len(ranking_dict[score_key])
+        return user_ranking
+
+    def set_user_ranking_data(user_id, new_total_score):
+        """
+        author : 전재완
+        param : user_id(str), new_total_score(int)
+        explanation : 입력받은 유저의 새로운 total score를 캐시에 저장
+        """
+
+        ranking_dict = cache.get("ranking_dict")
+        for score_key in ranking_dict.keys():
+            if user_id in ranking_dict[score_key]:
+                ranking_dict[score_key].remove(user_id)
+                break
+        ranking_dict[new_total_score].add(user_id)
+        cache.set("ranking_dict", ranking_dict, timeout=None)

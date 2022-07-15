@@ -137,11 +137,23 @@ class BossRaidStatusAPI(APIView):
             
 
 class BossRaidRankingAPI(APIView):
+    """
+    author : 전재완
+    explanation : 보스레이드 랭킹 조회 API
+    """
     
     def get(self, request):
+        """
+        author : 전재완
+        param : Request
+        return : Response(200/400)
+        explanation : list of dictionary 형식의 전체 유저의 보스레이드 랭킹과 점수, dictionary 형의 요청받은 유저의 보스레이드 랭킹과 점수를 포함하는 Response 반환
+        """
+        
         try:
             user_id = request.GET.get('userId')
             if user_id:
+                user_id = int(user_id)
                 ranking_list = RankingDataService.get_ranking_data()
                 user_ranking = RankingDataService.get_user_ranking_data(request.GET.get('userId'))
                 res = {
