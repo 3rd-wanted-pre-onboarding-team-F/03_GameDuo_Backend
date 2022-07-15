@@ -180,9 +180,7 @@ class BossRaidRankingAPI(APIView):
             if user_id:
                 user_id = int(user_id)
                 ranking_list = RankingDataService.get_ranking_data()
-                user_ranking = RankingDataService.get_user_ranking_data(
-                    request.GET.get("userId")
-                )
+                user_ranking = RankingDataService.get_user_ranking_data(user_id)
                 res = {"topRankerInfoList": ranking_list, "myRankingInfo": user_ranking}
                 return Response(res, status=status.HTTP_200_OK)
             return Response(
