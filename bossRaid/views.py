@@ -39,7 +39,7 @@ class BossRaidAPI(mixins.RetrieveModelMixin, viewsets.GenericViewSet):
         - 캐시에 S3 static data 저장
     """
 
-    # lookup_url_kwarg = 'game_id'
+    lookup_url_kwarg = 'game_id'
 
     def get_queryset(self):
         return BossRaid.objects.all()
@@ -54,7 +54,7 @@ class BossRaidAPI(mixins.RetrieveModelMixin, viewsets.GenericViewSet):
             "https://dmpilf5svl7rv.cloudfront.net/assignment/backend/bossRaidData.json"
         )
 
-        if not url.raise_for_status():
+        if url.raise_for_status():
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
         url.encoding = "utf-8"
