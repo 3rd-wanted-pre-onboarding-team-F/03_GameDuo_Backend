@@ -12,15 +12,33 @@ from bossRaid.serializers import BossRaidHistorySerializer
 
 
 class RegisterView(generics.CreateAPIView):
+    """
+    author : 임혁
+    co-author : 
+    explanation: BossRaid 회원가입 api
+    """
     queryset = User.objects.all()
     serializer_class = RegisterSerializer
 
 
 class LoginView(generics.GenericAPIView):
+    """
+    author : 임혁
+    co-author :
+    explanation
+    post : 로그인 api
+    """
     serializer_class = LoginSerializer
 
     @swagger_auto_schema(request_body=user_post_params)
     def post(self, request):
+        """
+        author : 임혁
+        co-author : 
+        param : request
+        return : 200/400 response
+        explanation : 입력받은 로그인 정보를 POST 함수로 사용자 인증을 위해 전달
+        """
         serializer = self.get_serializer(data=request.data)
         if serializer.is_valid():
             return Response(serializer.data, status=status.HTTP_200_OK)
@@ -28,6 +46,11 @@ class LoginView(generics.GenericAPIView):
 
 
 class TotalScoreView(generics.RetrieveUpdateAPIView):
+    """
+    author : 임혁
+    co-author :
+    explanation : BossRaid 사용자별 총 합 점수 api
+    """
     queryset = TotalScore.objects.all()
     serializer_class = TotalScoreSerializer
 
