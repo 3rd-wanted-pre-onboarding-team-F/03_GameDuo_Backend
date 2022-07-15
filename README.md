@@ -356,6 +356,8 @@
 
 # 로컬에서 바로 서버 구동
 pip install -r requirements.txt
+python manage.py makemigrations
+python manage.py migrate
 python manage.py runserver
 
 # 도커 실행 (prod branch)
