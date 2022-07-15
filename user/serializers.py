@@ -49,6 +49,7 @@ class LoginSerializer(serializers.ModelSerializer):
         explanation : 로그인 인증, 등록된 사용자가 맞는지 검증하는 함수
         """
         user=authenticate(**data)
+        user = authenticate(**data)
         if user:
             User.objects.get(username=user)
             return user
@@ -59,7 +60,9 @@ class LoginSerializer(serializers.ModelSerializer):
 
 class TotalScoreSerializer(serializers.ModelSerializer):
     """
-    유저 총합 점수 시리얼라이저
+    author : 이승민
+    explanation :
+        유저 총합 점수 시리얼라이저
     """
 
     class Meta:
