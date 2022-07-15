@@ -60,7 +60,7 @@
           - 유효성 검사: userId와 raidRecordId가 일치하지 않다면 예외 처리
           - 시작한 시간으로부터 레이드 제한 시간이 지났다면 예외처리
       - 보스레이드 랭킹 조회
-
+<br>
 
 
   ### 프로젝트 분석
@@ -73,19 +73,19 @@
   -  랭킹 데이터는 웹 서버에 캐싱 또는 Redis에 캐싱
   -  레이어 계층 분리
   -  발생할 수 있는 다양한 예외 처리
+<br>
 
 
+  ###  패턴
 
-  ### 로직 패턴
-
-  - 설명
-
+  <img src="https://user-images.githubusercontent.com/44389424/179135015-a81898a1-e22f-4414-87db-bb264fd20772.jpg"/>
+<br>
 
 
   ### 데이터 다이어그램
 
-  - 설명
-
+  <img src="https://user-images.githubusercontent.com/44389424/179135022-8f1d76dd-b6ff-4328-bce7-5c0353e1365c.jpg"/>
+<br>
 
 
 ### API 명세서
@@ -97,45 +97,44 @@
 | 3    | /bossRaid               | GET    | 보스레이드 상태 조회 |
 | 4    | /bossRaid/enter         | POST   | 보스레이드 시작      |
 | 5    | /bossRaid/end           | PATCH  | 보스레이드 종료      |
-| 6    | /bossRaid/topRankerList | GET    | 랭킹조회             |
-
+| 6    | /bossRaid/topRankerList?user_id=\<int:user_id\> | GET    | 랭킹조회             |
+<br>
 
 
 ### ERD
 
 <img src="https://user-images.githubusercontent.com/44389424/178653804-f23aedb0-85ec-4fe5-8ec8-075227eb0ecb.JPG"/>
-<br>
-
-- Users: 회원 정보
+<details>
+<summary>Users: 회원 정보</summary>
 
   | 필드명    | 타입   | 비고 |
   | --------- | ------ | ---- |
   | id        | Int    | PK   |
   | user_name | String |      |
   | password  | String |      |
+</details>
 
-  
-
-- Total Score: 보스레이드에서 얻은 유저 별 총 점수
+<details>
+<summary>Total Score: 보스레이드에서 얻은 유저 별 총 점수</summary>
 
   | 필드명      | 타입 | 비고                   |
   | ----------- | ---- | ---------------------- |
   | id          | Int  | PK                     |
   | user_id     | Int  | Foreign Key (users:id) |
   | total_score | Int  |                        |
-
+</details>
   
-
-- BossRaid: 보스레이드
+<details>
+<summary>BossRaid: 보스레이드</summary>
 
   | 필드명     | 타입    | 비고 |
   | ---------- | ------- | ---- |
   | id         | Int     | PK   |
   | is_entered | Boolean |      |
+</details>
 
-  
-
-- BossRaidHistory: 보스레이드 시작 및 종료 기록
+<details>
+<summary>BossRaidHistory: 보스레이드 시작 및 종료 기록</summary>
 
   | 필드명      | 타입     | 비고                      |
   | ----------- | -------- | ------------------------- |
@@ -146,10 +145,10 @@
   | score       | Int      |                           |
   | enter_time  | Datetime |                           |
   | end_time    | Datetime |                           |
-
+</details>
   
-
-- BossRaidStatus: 보스레이드 상태
+<details>
+<summary>BossRaidStatus: 보스레이드 상태</summary>
 
   | 필드명         | 타입     | 비고                      |
   | -------------- | -------- | ------------------------- |
@@ -158,7 +157,7 @@
   | bossraid_id    | Int      | Foreign Key (bossraid:id) |
   | level          | Int      |                           |
   | last_entertime | Datetime |                           |
-
+</details>
 <br><br>
 </div>
 
@@ -190,10 +189,12 @@
 pip install -r requirements.txt
 python manage.py runserver
 
-# 도커 실행
+# 도커 실행 (prod branch)
 pip install docker
 pip install docker-compose
 docker-compose up -d
+
+(장고 서버는 15초 대기 시간을 걸었습니다.)
 ```
 
 
@@ -219,18 +220,10 @@ GCP 배포, 테스트 및 동작을 확인하였으며, 비용 등의 이유로 
 
 
 
-## 테스트 케이스
-
-Pytest-Django로 구현 된 개의 테스트 구현
-
-- 성공 케이스: 개 (통과)
-- 실패 케이스: 개 (통과)  
-<br><br>
-
 
 
 ## 기술 스택
 
-> - Back-End :  <img src="https://img.shields.io/badge/Python 3.10-3776AB?style=flat&logo=Python&logoColor=white"/>&nbsp;<img src="https://img.shields.io/badge/Django 4.0.4-092E20?style=flat&logo=Django&logoColor=white"/>&nbsp;<img src="https://img.shields.io/badge/Django-DRF 3.13.1-009287?style=flat&logo=Django&logoColor=white"/>&nbsp;<img src="https://img.shields.io/badge/Docker 20.10.14-2496ED?style=flat&logo=docker&logoColor=white"/>&nbsp;<img src="https://img.shields.io/badge/redis-%23DD0031.svg?style=for-the-badge&logo=redis&logoColor=white">
+> - Back-End :  <img src="https://img.shields.io/badge/Python 3.10-3776AB?style=flat&logo=Python&logoColor=white"/>&nbsp;<img src="https://img.shields.io/badge/Django 4.0.4-092E20?style=flat&logo=Django&logoColor=white"/>&nbsp;<img src="https://img.shields.io/badge/Django-DRF 3.13.1-009287?style=flat&logo=Django&logoColor=white"/>&nbsp;<img src="https://img.shields.io/badge/Docker 20.10.14-2496ED?style=flat&logo=docker&logoColor=white"/>&nbsp;<img src="https://img.shields.io/badge/redis-%23DD0031.svg?style=for-the-badge&logo=redis&logoColor=white"/>&nbsp;<img src="https://img.shields.io/badge/Nginx-009639?style=flat&logo=Nginx&logoColor=white"/>
 >
 > - ETC　　　:  <img src="https://img.shields.io/badge/Git-F05032?style=flat-badge&logo=Git&logoColor=white"/>&nbsp;<img src="https://img.shields.io/badge/Github-181717?style=flat-badge&logo=Github&logoColor=white"/>&nbsp;<img src="https://img.shields.io/badge/Swagger-FF6C37?style=flat-badge&logo=Swagger&logoColor=white"/>&nbsp;<img src="https://img.shields.io/badge/GoogleCloud-%234285F4.svg?style=for-the-badge&logo=google-cloud&logoColor=white"/>
