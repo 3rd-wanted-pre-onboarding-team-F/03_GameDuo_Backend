@@ -12,9 +12,9 @@ from bossRaid.models import (
 from bossRaid.services import (
     StatusService,
     HistoryService,
+    RankingDataService,
 )
 from user.models import User, TotalScore
-from bossRaid.cache_data import RankingDataService
 
 
 class BossRaidSerializer(serializers.ModelSerializer):

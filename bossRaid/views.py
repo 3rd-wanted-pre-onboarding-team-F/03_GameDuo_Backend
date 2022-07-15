@@ -24,6 +24,7 @@ from user.models import (
     User,
 )
 from bossRaid.cache_data import RankingDataService
+from .services import RankingDataService
 
 import requests
 import json
