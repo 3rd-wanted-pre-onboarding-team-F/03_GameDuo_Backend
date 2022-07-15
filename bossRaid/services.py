@@ -9,8 +9,11 @@ from bossRaid.models import (
 
 class StatusService(object):
     """
-    BossRaidStatus Data 생성
-    보스 레이드 시작 API 호출 시, 보스 레이드의 진행 상태와 관련된 DB를 조작하는 Service
+    author : 이승민
+    explanation :
+        - 보스 레이드 시작 API 호출 시, 보스 레이드의 진행 상태와 관련된 DB를 조작하는 Service
+        - BossRaidStatus Data 생성
+
     """
     def set_status(self, validate_data):
         """
@@ -33,6 +36,8 @@ class StatusService(object):
         is_enter = BossRaid.objects.get(id=validate_data['boss_raid'])
         is_enter.is_entered = True
         is_enter.save()
+
+        """ 시간제한 초과로 0점의 기록을 생성 """
         history = BossRaidHistory.objects.create(
             level=validate_data['level'],
             score=0,
@@ -47,9 +52,10 @@ class StatusService(object):
 
 class HistoryService(object):
     """
-    BossRaidHistory
-    보스 레이드 종료 API 호출 시, 레벨에 맞는 점수를 반환 및 업데이트를 하고
-    BossRaidHistory에 데이터를 적재 후, BossRaidStatus 데이터를 삭제한다.
+    author : 이승민
+    explanation :
+        - 보스 레이드 종료 API 호출 시, 레벨에 맞는 점수를 반환 및 업데이트를 하고
+        - BossRaidHistory에 데이터를 적재 후, BossRaidStatus 데이터를 삭제한다.
     """
     def set_history(self, validate_data):
         """
@@ -60,6 +66,7 @@ class HistoryService(object):
         ).values('level')[0]['level']
         level = cache.get('score_data').json()['bossRaids'][0]['levels']
 
+        """ Static Data를 기반으로 보스레이드가 끝난 유저의 점수 계산 """
         if get_level - 1 == level[0]['level']:
             score = level[0]['score']
         elif get_level - 1 == level[1]['level']:
@@ -69,6 +76,7 @@ class HistoryService(object):
         else:
             score = 0
 
+        """ 보스 레이드가 끝난 유저의 기록 생성 """
         history = BossRaidHistory.objects.create(
             level=get_level,
             score=score,
@@ -76,6 +84,11 @@ class HistoryService(object):
             boss_raid_id=validate_data['boss_raid']
         )
         BossRaidStatus.objects.filter(id=validate_data['raidRecordId']).delete()
+
+        """ 입장이 가능하도록 True로 업데이트 """
+        is_enter = BossRaid.objects.select_for_update().get(id=validate_data['boss_raid'])
+        is_enter.is_entered = True
+        is_enter.save()
 
         return history
 

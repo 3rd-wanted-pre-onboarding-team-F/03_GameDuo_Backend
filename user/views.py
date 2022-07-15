@@ -1,4 +1,5 @@
 from django.contrib.auth.models import User
+from django.shortcuts import get_object_or_404
 from rest_framework import generics, status, mixins, viewsets
 from rest_framework.response import Response
 from drf_yasg.utils import swagger_auto_schema
@@ -58,7 +59,14 @@ class TotalScoreView(generics.RetrieveUpdateAPIView):
 class TotalScoreAPI(mixins.RetrieveModelMixin,
                     viewsets.GenericViewSet):
     """
-    토탈 스토어 조회
+    author : 이승민
+    request : Dict
+    response : Dict, status code
+    explanation :
+        유저 조회 뷰
+        - 해당 유저의 id
+        - 해당 유저의 총합 점수
+        aggregate 함수를 사용해서 Boss raid history에 해다 유저의 점수를 전부 더한다.
     """
 
     lookup_url_kwarg = 'user_id'
@@ -71,10 +79,11 @@ class TotalScoreAPI(mixins.RetrieveModelMixin,
 
     def retrieve(self, request, *args, **kwargs):
         pk = self.kwargs['user_id']
-        history = BossRaidHistory.objects.filter(user_id=pk).all()
+        user_id = get_object_or_404(User, pk=pk)
+        history = BossRaidHistory.objects.filter(user_id=user_id).all()
         boss_history = BossRaidHistorySerializer(history, many=True)
 
-        # 사용자 상세 조회 시 총합 점수 및 히스토리 반환
+        """ 사용자 상세 조회 시 총합 점수 및 히스토리 반환 """
         user = TotalScore.objects.get(user_id=pk)
         sum = BossRaidHistory.objects.aggregate(Sum('score'))['score__sum']
         user.total_score = sum
