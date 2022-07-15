@@ -60,7 +60,7 @@
           - 유효성 검사: userId와 raidRecordId가 일치하지 않다면 예외 처리
           - 시작한 시간으로부터 레이드 제한 시간이 지났다면 예외처리
       - 보스레이드 랭킹 조회
-
+<br>
 
 
   ### 프로젝트 분석
@@ -73,19 +73,19 @@
   -  랭킹 데이터는 웹 서버에 캐싱 또는 Redis에 캐싱
   -  레이어 계층 분리
   -  발생할 수 있는 다양한 예외 처리
-
+<br>
 
 
   ### 로직 패턴
 
-  - 설명
-
+  <img src="https://user-images.githubusercontent.com/44389424/179135015-a81898a1-e22f-4414-87db-bb264fd20772.jpg"/>
+<br>
 
 
   ### 데이터 다이어그램
 
-  - 설명
-
+  <img src="https://user-images.githubusercontent.com/44389424/179135022-8f1d76dd-b6ff-4328-bce7-5c0353e1365c.jpg"/>
+<br>
 
 
 ### API 명세서
@@ -98,7 +98,7 @@
 | 4    | /bossRaid/enter         | POST   | 보스레이드 시작      |
 | 5    | /bossRaid/end           | PATCH  | 보스레이드 종료      |
 | 6    | /bossRaid/topRankerList | GET    | 랭킹조회             |
-
+<br>
 
 
 ### ERD
@@ -113,7 +113,7 @@
   | id        | Int    | PK   |
   | user_name | String |      |
   | password  | String |      |
-
+<br>
   
 
 - Total Score: 보스레이드에서 얻은 유저 별 총 점수
@@ -123,7 +123,7 @@
   | id          | Int  | PK                     |
   | user_id     | Int  | Foreign Key (users:id) |
   | total_score | Int  |                        |
-
+<br>
   
 
 - BossRaid: 보스레이드
@@ -132,7 +132,7 @@
   | ---------- | ------- | ---- |
   | id         | Int     | PK   |
   | is_entered | Boolean |      |
-
+<br>
   
 
 - BossRaidHistory: 보스레이드 시작 및 종료 기록
@@ -146,7 +146,7 @@
   | score       | Int      |                           |
   | enter_time  | Datetime |                           |
   | end_time    | Datetime |                           |
-
+<br>
   
 
 - BossRaidStatus: 보스레이드 상태
