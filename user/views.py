@@ -5,6 +5,7 @@ from rest_framework.response import Response
 from drf_yasg.utils import swagger_auto_schema
 from django.db.models import Sum
 
+from bossRaid.services import StatusService
 from .user_api_params import user_post_params
 from .serializers import LoginSerializer, RegisterSerializer, TotalScoreSerializer
 from user.models import User, TotalScore
@@ -59,7 +60,8 @@ class TotalScoreView(generics.RetrieveUpdateAPIView):
     serializer_class = TotalScoreSerializer
 
 
-class TotalScoreAPI(mixins.RetrieveModelMixin, viewsets.GenericViewSet):
+class TotalScoreAPI(mixins.RetrieveModelMixin,
+                    viewsets.GenericViewSet):
     """
     author : 이승민
     request : Dict
@@ -80,17 +82,18 @@ class TotalScoreAPI(mixins.RetrieveModelMixin, viewsets.GenericViewSet):
         return TotalScoreSerializer
 
     def retrieve(self, request, *args, **kwargs):
+        """ 유저 확인 """
         pk = self.kwargs["user_id"]
-        user_id = get_object_or_404(User, pk=pk)
-        history = BossRaidHistory.objects.filter(user_id=user_id).all()
+
+        """ 유저 점수 반환 """
+        set_score = StatusService()
+        user, history = set_score.set_user_score(pk)
+
         boss_history = BossRaidHistorySerializer(history, many=True)
 
-        """ 사용자 상세 조회 시 총합 점수 및 히스토리 반환 """
-        user = TotalScore.objects.get(user_id=pk)
-        sum = BossRaidHistory.objects.aggregate(Sum("score"))["score__sum"]
-        user.total_score = sum
-        user.save()
-
-        res = {"totalScore": sum, "bossRaidHistory": boss_history.data}
+        res = {
+            "totalScore": user.total_score,
+            "bossRaidHistory": boss_history.data
+        }
 
         return Response(res, status=status.HTTP_200_OK)
