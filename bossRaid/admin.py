@@ -10,4 +10,3 @@ from bossRaid.models import (
 admin.site.register(BossRaid)
 admin.site.register(BossRaidHistory)
 admin.site.register(BossRaidStatus)
-
