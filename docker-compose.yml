@@ -1,3 +1,6 @@
+# author : 이승민
+# docker-compose.yml
+
 services:
   web:
     build: .
