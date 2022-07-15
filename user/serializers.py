@@ -15,7 +15,7 @@ class RegisterSerializer(serializers.ModelSerializer):
         fields = ('username', 'password')
 
     def create(self, validated_data):
-        user=User.objects.create_user(
+        user = User.objects.create_user(
             username=validated_data['username']
         )
         user.set_password(validated_data['password'])
@@ -32,7 +32,7 @@ class LoginSerializer(serializers.ModelSerializer):
         fields = ('username', 'password')
 
     def validate(self, data):
-        user=authenticate(**data)
+        user = authenticate(**data)
         if user:
             User.objects.get(username=user)
             return user
@@ -43,7 +43,9 @@ class LoginSerializer(serializers.ModelSerializer):
 
 class TotalScoreSerializer(serializers.ModelSerializer):
     """
-    유저 총합 점수 시리얼라이저
+    author : 이승민
+    explanation :
+        유저 총합 점수 시리얼라이저
     """
 
     class Meta:

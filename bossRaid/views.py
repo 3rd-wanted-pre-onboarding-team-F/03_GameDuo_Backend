@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from django.shortcuts import get_object_or_404
 from rest_framework import mixins, viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -31,11 +32,15 @@ import json
 class BossRaidAPI(mixins.RetrieveModelMixin,
                   viewsets.GenericViewSet):
     """
-    게임 접속
-    캐시에 S3 static data 저장
+    author : 이승민
+    reqeust : Dict
+    response : Dict, status code
+    explanation :
+        게임 접속 뷰
+        - 캐시에 S3 static data 저장
     """
 
-    lookup_url_kwarg = 'game_id'
+    # lookup_url_kwarg = 'game_id'
 
     def get_queryset(self):
         return BossRaid.objects.all()
@@ -48,8 +53,8 @@ class BossRaidAPI(mixins.RetrieveModelMixin,
 
         url = requests.get('https://dmpilf5svl7rv.cloudfront.net/assignment/backend/bossRaidData.json')
 
-        # if not url.raise_for_status():
-        #     return Response(status=status.HTTP_400_BAD_REQUEST)
+        if not url.raise_for_status():
+            return Response(status=status.HTTP_400_BAD_REQUEST)
 
         url.encoding = 'utf-8'
         cache.get_or_set('score_data', url)
@@ -63,7 +68,11 @@ class BossRaidAPI(mixins.RetrieveModelMixin,
 
 class BossRaidStartAPI(viewsets.GenericViewSet):
     """
-    보스 레이드 시작 뷰
+    author : 이승민
+    request : Dict
+    response : Dict, status code
+    explanation :
+        보스 레이드 시작 뷰
     """
 
     def get_queryset(self):
@@ -74,6 +83,9 @@ class BossRaidStartAPI(viewsets.GenericViewSet):
 
     @action(detail=False, methods=['post'])
     def enter(self, request):
+        """
+        보스 레이드 시작 API
+        """
         serializer = self.get_serializer(data=request.data)
         if serializer.is_valid(raise_exception=True):
             serializer.save()
@@ -88,7 +100,11 @@ class BossRaidStartAPI(viewsets.GenericViewSet):
 
 class BossRaidEndAPI(viewsets.GenericViewSet):
     """
-    보스 레이드 종료 뷰
+    author : 이승민
+    request : Dict
+    response : Dict, status code
+    explanation :
+        보스 레이드 종료 뷰
     """
 
     def get_queryset(self):
@@ -99,6 +115,9 @@ class BossRaidEndAPI(viewsets.GenericViewSet):
 
     @action(detail=False, methods=['patch'])
     def end(self, request):
+        """
+        보스 레이드 종료 API
+        """
         serializer = self.get_serializer(data=request.data)
         if serializer.is_valid(raise_exception=True):
             serializer.save()
