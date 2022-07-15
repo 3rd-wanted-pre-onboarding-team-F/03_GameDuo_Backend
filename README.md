@@ -92,14 +92,186 @@
 
 | ID   | URI                     | METHOD | 기능                 |
 | ---- | ----------------------- | ------ | -------------------- |
-| 1    | /user                   | POST   | 유저 생성            |
-| 2    | /user/<int: user_id>    | GET    | 유저 정보 조회       |
-| 3    | /bossRaid               | GET    | 보스레이드 상태 조회 |
-| 4    | /bossRaid/enter         | POST   | 보스레이드 시작      |
-| 5    | /bossRaid/end           | PATCH  | 보스레이드 종료      |
-| 6    | /bossRaid/topRankerList?user_id=\<int:user_id\> | GET    | 랭킹조회             |
-<br>
+| 1    | /users/register             | POST   | 유저 생성            |
+|2     | /users/login            |POST    | 로그인      |
+| 3   | /users/<int: user_id>    | GET    | 유저 정보 조회       |
+| 4    | /bossRaid               | GET    | 보스레이드 상태 조회 |
+| 5    | /bossRaid/enter         | POST   | 보스레이드 시작      |
+| 6    | /bossRaid/end           | PATCH  | 보스레이드 종료      |
+|7     | /bossRaid/\<int:game_id\>|GET    |보스레이드 접속       |
+| 8    | /bossRaid/topRankerList?user_id=\<int:user_id\> | GET    | 랭킹조회             |
+<details>
+  <summary>1. 유저 생성</summary>
+  
+  ```
+  [POST]
+  users/register
+  ```
+  - Request
+  ```
+  {
+  "username": "testuser",
+  "password": "password@"
+ }
 
+  ```
+  - Response
+  ```
+  SUCCESS {
+  "username": "testuser"
+}
+
+  ```
+</details>
+<details>
+  <summary>2. 로그인</summary>
+  
+  ```
+  [POST]
+  /users/login
+  ```
+  - Request
+  ```
+  {
+  "username": "testuser",
+  "password": "password@"
+}
+
+  ```
+  - Response
+  ```
+  SUCCESS {
+  "username": "testuser"
+}
+
+  ```
+</details>
+<details>
+  <summary>3. 유저 정보 조회</summary>
+  
+  ```
+  [GET]
+  /users/<int: user_id>
+  ```
+  - Response
+  ```
+  SUCCESS {
+    "totalScore": 199,
+    "bossRaidHistory": [
+        {
+            "id": 22,
+            "score": 85,
+            "enter_time": "2022-07-15T14:51:03.665203+09:00",
+            "end_time": "2022-07-15T14:51:03.665203+09:00"
+        },
+        ...
+    ]
+}
+  ```
+</details>
+<details>
+  <summary>4. 보스레이드 상태 조회</summary>
+  
+  ```
+  [GET]
+  /bossRaid 
+  ```
+  - Response
+  ```
+  SUCCESS {
+  "status": [
+    {
+      "bossRaidId": 1,
+      "canEnter": false,
+      "enteredUserId": 103
+    }
+  ]
+
+  ```
+</details>
+<details>
+  <summary>5. 보스레이드 시작</summary>
+  
+  ```
+  [POST]
+  /bossRaid/enter
+  ```
+  - Request
+  ```
+  ```
+  - Response
+  ```
+  ```
+</details>
+<details>
+  <summary>6. 보스레이드 종료</summary>
+  
+  ```
+  [PATCH]
+  /bossRaid/end
+  ```
+  - Request
+  ```
+  ```
+  - Response
+  ```
+  ```
+</details>
+<details>
+  <summary>7. 보스레이드 접속</summary>
+  
+  ```
+  [GET]
+  /bossRaid/\<int:game_id\>
+  ```
+  - Response
+  ```
+  SUCCESS {
+  "Boss Raid": {
+    "id": 1,
+    "name": "닌자대전"
+  }
+}
+
+  ```
+</details>
+<details>
+  <summary>8. 랭킹 조회</summary>
+  
+  ```
+  [GET]
+  /bossRaid/topRankerList?user_id=\<int:user_id\>
+  ```
+  - Response
+  ```
+  SUCCESS {
+    "topRankerInfoList": [
+        {
+            "ranking": 1,
+            "userId": 21,
+            "totalScore": 217
+        },
+        {
+            "ranking": 2,
+            "userId": 1,
+            "totalScore": 199
+        },
+        {
+            "ranking": 3,
+            "userId": 45,
+            "totalScore": 190
+        },
+        ...
+    ],
+    "myRankingInfo": {
+        "ranking": 33,
+        "userId": 3,
+        "totalScore": 0
+    }
+}
+  ```
+</details>
+<br><br>
 
 ### ERD
 
@@ -163,7 +335,6 @@
 
 
 
-
   ### 🚥 개발 조건 
 
   #### 🙆‍♂️ 필수사항  
@@ -175,8 +346,6 @@
     - Docker
     - Unit test codes  
     - REST API Documentation (Swagger UI)  
-
-
 
 
 
@@ -199,8 +368,6 @@ docker-compose up -d
 
 
 
-
-
 ## 🔥 배포
 
 docker를 이용해 프로젝트 api를 컨테이너화 하여 GCP에 배포했습니다  
@@ -217,8 +384,6 @@ GCP 배포, 테스트 및 동작을 확인하였으며, 비용 등의 이유로 
 [API 명세서 (Swagger)]()
 
 <br><br>
-
-
 
 
 
