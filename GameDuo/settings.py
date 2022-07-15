@@ -92,7 +92,7 @@ DATABASES = {
         "NAME": env("MYSQL_DATABASE"),
         "USER": env("MYSQL_USER"),
         "PASSWORD": env("MYSQL_ROOT_PASSWORD"),
-        'HOST': 'db',
+        "HOST": "127.0.0.1",
         "PORT": "3306",
         "OPTIONS": {
             # 'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",  # 추가, 만약에 이 부분 때문에 오류가 난다면, 이 라인을 지우고 다시 시도해주세요.
@@ -105,7 +105,7 @@ DATABASES = {
 CACHES = {
     "default": {
         "BACKEND": "django.core.cache.backends.redis.RedisCache",
-        "LOCATION": "redis://redis:6379",
+        "LOCATION": "redis://127.0.0.1:6379",
     }
 }
 
