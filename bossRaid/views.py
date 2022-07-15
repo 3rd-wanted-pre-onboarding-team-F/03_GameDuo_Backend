@@ -157,16 +157,7 @@ class BossRaidRankingAPI(APIView):
     explanation : 보스레이드 랭킹 조회 API
     """
     
-    @swagger_auto_schema(
-        manual_parameters=[
-            openapi.Parameter(
-                name='userId',
-                required=True,
-                type='integer',
-                in_='path',
-            ),
-        ],
-    )
+    @swagger_auto_schema(query_serializer=GetRequestUserRankingSerializer)
     def get(self, request):
         """
         author : 전재완

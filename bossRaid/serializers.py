@@ -272,3 +272,6 @@ class BossRaidStatusSerializer(serializers.ModelSerializer):
     class Meta:
         model = BossRaidStatus
         fields = ("id", "user_id", "level", "boss_raid_id", "last_entertime")
+
+class GetRequestUserRankingSerializer(serializers.Serializer):
+    user_id = serializers.IntegerField()
