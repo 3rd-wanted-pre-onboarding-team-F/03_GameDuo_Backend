@@ -1,9 +1,11 @@
 from django.core.cache import cache
+from django.db.models import Sum
 
 from bossRaid.models import BossRaid, BossRaidHistory, BossRaidStatus
+from user.models import TotalScore
 
 
-class StatusService(object):
+class StatusService():
     """
     author : 이승민
     explanation :
@@ -11,10 +13,9 @@ class StatusService(object):
         - BossRaidStatus Data 생성
 
     """
-
     def set_status(self, validate_data):
         """
-        보스 레이드 시작 후, 스테이터스 데이터 적재
+        보스 레이드 시작 후, 스테이터스 데이터 적재 로정
         """
         status = BossRaidStatus.objects.create(
             level=validate_data["level"],
@@ -27,7 +28,7 @@ class StatusService(object):
 
     def set_timer(self, validate_data, status):
         """
-        보스 레이드 시작 후, 타이머 작동
+        보스 레이드 시작 후, 타이머 작동 로직
         타이머 시간 초과가 되면 히스토리 데이터 적재 후, 스테이터스 데이터 삭제
         """
         is_enter = BossRaid.objects.get(id=validate_data["boss_raid"])
@@ -45,15 +46,31 @@ class StatusService(object):
 
         return history
 
+    def set_user_score(self, pk):
+        """
+        유저 조회 시 유저 점수 반환 로직
+        """
+        user = TotalScore.objects.get(user_id=pk)
+        history = BossRaidHistory.objects.filter(user_id=pk).all()
 
-class HistoryService(object):
+        """ 사용자 상세 조회 시 총합 점수 및 히스토리 반환 """
+        if history.exists():
+            user.total_score = BossRaidHistory.objects.filter(
+                user_id=pk
+            ).aggregate(Sum("score"))["score__sum"]
+        else:
+            user.total_score = 0
+
+        return user, history
+
+
+class HistoryService():
     """
     author : 이승민
     explanation :
         - 보스 레이드 종료 API 호출 시, 레벨에 맞는 점수를 반환 및 업데이트를 하고
         - BossRaidHistory에 데이터를 적재 후, BossRaidStatus 데이터를 삭제한다.
     """
-
     def set_history(self, validate_data):
         """
         보스 레이드 종료 후, 점수 계산 및 히스토리 데이터 저장
