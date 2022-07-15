@@ -24,6 +24,8 @@ from user.models import (
     User,
 )
 from .services import RankingDataService
+from drf_yasg.utils import swagger_auto_schema
+from drf_yasg import openapi
 
 import requests
 import json
@@ -154,7 +156,17 @@ class BossRaidRankingAPI(APIView):
     author : 전재완
     explanation : 보스레이드 랭킹 조회 API
     """
-
+    
+    @swagger_auto_schema(
+        manual_parameters=[
+            openapi.Parameter(
+                name='userId',
+                required=True,
+                type='integer',
+                in_='path',
+            ),
+        ],
+    )
     def get(self, request):
         """
         author : 전재완
