@@ -8,21 +8,15 @@ from bossRaid.views import (
     BossRaidAPI,
 )
 
-boss_raid = BossRaidAPI.as_view({
-    'get': 'retrieve'
-})
-raid_start = BossRaidStartAPI.as_view({
-    'post': 'enter'
-})
-raid_end = BossRaidEndAPI.as_view({
-    'patch': "end"
-})
+boss_raid = BossRaidAPI.as_view({"get": "retrieve"})
+raid_start = BossRaidStartAPI.as_view({"post": "enter"})
+raid_end = BossRaidEndAPI.as_view({"patch": "end"})
 
 
 urlpatterns = [
-    path('<int:game_id>/', boss_raid),
-    path('enter/', raid_start),
-    path('end/', raid_end),
-    path('', BossRaidStatusAPI.as_view()),
-    path('topRankerList/', BossRaidRankingAPI.as_view()),
+    path("<int:game_id>/", boss_raid),
+    path("enter/", raid_start),
+    path("end/", raid_end),
+    path("", BossRaidStatusAPI.as_view()),
+    path("topRankerList/", BossRaidRankingAPI.as_view()),
 ]

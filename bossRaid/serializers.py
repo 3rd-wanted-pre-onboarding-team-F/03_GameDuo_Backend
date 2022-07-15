@@ -23,11 +23,10 @@ class BossRaidSerializer(serializers.ModelSerializer):
     explanation :
         게임 접속 시리얼라이저
     """
+
     class Meta:
         model = BossRaid
-        fields = [
-            'id', 'name'
-        ]
+        fields = ["id", "name"]
 
 
 class BossRaidHistorySerializer(serializers.ModelSerializer):
@@ -40,10 +39,10 @@ class BossRaidHistorySerializer(serializers.ModelSerializer):
     class Meta:
         model = BossRaidHistory
         fields = [
-            'id',
-            'score',
-            'enter_time',
-            'end_time',
+            "id",
+            "score",
+            "enter_time",
+            "end_time",
         ]
 
 
@@ -78,27 +77,21 @@ class BossRaidStartSerializer(serializers.Serializer):
             """
             request user가 빈 칸일 때,
             """
-            raise serializers.ValidationError(
-                _('User ID field not allowed empty')
-            )
+            raise serializers.ValidationError(_("User ID field not allowed empty"))
 
         get_user = User.objects.filter(id=user)
         if not get_user:
             """
             request user가 존재하지 않을 때,
             """
-            raise serializers.ValidationError(
-                _('User ID does not exist')
-            )
+            raise serializers.ValidationError(_("User ID does not exist"))
 
         get_user_raid = BossRaidStatus.objects.filter(user_id=user)
         if get_user_raid.exists():
             """
             request user가 이미 보스 레이드를 진행중 일 때
             """
-            raise serializers.ValidationError(
-                _('User is already Play Boss Raid !')
-            )
+            raise serializers.ValidationError(_("User is already Play Boss Raid !"))
 
         return user
 
@@ -110,9 +103,7 @@ class BossRaidStartSerializer(serializers.Serializer):
             """
             level을 입력하지 않았을 떄,
             """
-            raise serializers.ValidationError(
-                _('Level field not allowed empty')
-            )
+            raise serializers.ValidationError(_("Level field not allowed empty"))
 
         return level
 
@@ -121,39 +112,33 @@ class BossRaidStartSerializer(serializers.Serializer):
         request boss_raid 유효성 검사
         """
         if not boss_raid:
-            """ 
-            boss_raid를 입력하지 않았을 때 
             """
-            raise serializers.ValidationError(
-                _('Boss Raid field not allowed empty')
-            )
+            boss_raid를 입력하지 않았을 때
+            """
+            raise serializers.ValidationError(_("Boss Raid field not allowed empty"))
 
         get_boss = BossRaid.objects.filter(id=boss_raid)
         if not get_boss.exists():
-            """ 
-            보스 레이드가 존재하지 않을 때 
             """
-            raise serializers.ValidationError(
-                _('Boss raid does not exist')
-            )
+            보스 레이드가 존재하지 않을 때
+            """
+            raise serializers.ValidationError(_("Boss raid does not exist"))
 
         get_boss_id = BossRaid.objects.get(id=boss_raid)
         if get_boss_id.is_entered == False:
-            """ 
-            보스레이드가 이미 실행중 일때 
             """
-            raise serializers.ValidationError(
-                _('Boss Raid is already Playing')
-            )
+            보스레이드가 이미 실행중 일때
+            """
+            raise serializers.ValidationError(_("Boss Raid is already Playing"))
         return boss_raid
 
     def validate(self, data):
         """
         유혀섬 검사가 끝난 데이터
         """
-        data['user'] = self.validate_user(data['user'])
-        data['level'] = self.validate_level(data['level'])
-        data['boss_raid'] = self.validate_boss_raid(data['boss_raid'])
+        data["user"] = self.validate_user(data["user"])
+        data["level"] = self.validate_level(data["level"])
+        data["boss_raid"] = self.validate_boss_raid(data["boss_raid"])
         return data
 
     @transaction.atomic()
@@ -163,7 +148,9 @@ class BossRaidStartSerializer(serializers.Serializer):
         """
         set_status_create = StatusService()
         status = set_status_create.set_status(validate_data)
-        boss_time = cache.get('score_data').json()['bossRaids'][0]['bossRaidLimitSeconds']
+        boss_time = cache.get("score_data").json()["bossRaids"][0][
+            "bossRaidLimitSeconds"
+        ]
 
         def timer_delete():
             """
@@ -191,6 +178,7 @@ class BossRaidEndSerializer(serializers.Serializer):
         - 진행중인 Boss Status를 삭제하고, 레이드 기록인 Boss History를 생성
         - 보스 레이드가 종료되면 해당 유저의 총합 점수가 갱신
     """
+
     userId = serializers.IntegerField(write_only=True)
     raidRecordId = serializers.IntegerField(write_only=True)
     boss_raid = serializers.IntegerField(write_only=True)
@@ -206,21 +194,17 @@ class BossRaidEndSerializer(serializers.Serializer):
         request userId 유효성 검사
         """
         if not userId:
-            """ 
-            request user가 빈 칸일 때 
             """
-            raise serializers.ValidationError(
-                _('User ID field not allowed empty')
-            )
+            request user가 빈 칸일 때
+            """
+            raise serializers.ValidationError(_("User ID field not allowed empty"))
 
         get_user = User.objects.filter(id=userId)
         if not get_user:
-            """ 
-            request user가 존재하지 않을 때 
             """
-            raise serializers.ValidationError(
-                _('User ID does not exist')
-            )
+            request user가 존재하지 않을 때
+            """
+            raise serializers.ValidationError(_("User ID does not exist"))
 
         return userId
 
@@ -229,21 +213,17 @@ class BossRaidEndSerializer(serializers.Serializer):
         request raidRecordId 유효성 검사
         """
         if not raidRecoreId:
-            """ 
+            """
             raidRecordId를 입력하지 않았을 때
             """
-            raise serializers.ValidationError(
-                _('raidRecordId field not allowed empty')
-            )
+            raise serializers.ValidationError(_("raidRecordId field not allowed empty"))
 
         get_raid = BossRaidStatus.objects.filter(id=raidRecoreId)
         if not get_raid:
-            """ 
+            """
             보스 레이드가 이미 실행중 일때
             """
-            raise serializers.ValidationError(
-                _('raidRecordId does not exist')
-            )
+            raise serializers.ValidationError(_("raidRecordId does not exist"))
 
         return raidRecoreId
 
@@ -252,21 +232,19 @@ class BossRaidEndSerializer(serializers.Serializer):
         request boss_raid 유효성 검사
         """
         if not boss_raid:
-            """ 
-            boss_raid를 입력하지 않았을 때 
             """
-            raise serializers.ValidationError(
-                _('Boss Raid field not allowed empty')
-            )
+            boss_raid를 입력하지 않았을 때
+            """
+            raise serializers.ValidationError(_("Boss Raid field not allowed empty"))
         return boss_raid
 
     def validate(self, data):
         """
         유효성 검사가 왼료된 데이터
         """
-        data['user'] = self.validate_userId(data['userId'])
-        data['id'] = self.validate_raidRecordId(data['raidRecordId'])
-        data['boss_raid'] = self.validate_boss_raid(data['boss_raid'])
+        data["user"] = self.validate_userId(data["userId"])
+        data["id"] = self.validate_raidRecordId(data["raidRecordId"])
+        data["boss_raid"] = self.validate_boss_raid(data["boss_raid"])
         return data
 
     @transaction.atomic()
@@ -279,9 +257,11 @@ class BossRaidEndSerializer(serializers.Serializer):
         set_create_history = HistoryService()
         history = set_create_history.set_history(validate_data)
 
-        sum = BossRaidHistory.objects.aggregate(Sum('score'))['score__sum']
-        user = TotalScore.objects.select_for_update().get(user_id=validate_data['userId'])
-        RankingDataService.set_user_ranking_data(validate_data['userId'], sum)
+        sum = BossRaidHistory.objects.aggregate(Sum("score"))["score__sum"]
+        user = TotalScore.objects.select_for_update().get(
+            user_id=validate_data["userId"]
+        )
+        RankingDataService.set_user_ranking_data(validate_data["userId"], sum)
         user.total_score = sum
         user.save()
 
@@ -291,4 +271,4 @@ class BossRaidEndSerializer(serializers.Serializer):
 class BossRaidStatusSerializer(serializers.ModelSerializer):
     class Meta:
         model = BossRaidStatus
-        fields = ('id', 'user_id', 'level', 'boss_raid_id', 'last_entertime')
+        fields = ("id", "user_id", "level", "boss_raid_id", "last_entertime")
