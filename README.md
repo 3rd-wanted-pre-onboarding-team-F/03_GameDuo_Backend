@@ -190,7 +190,7 @@
 pip install -r requirements.txt
 python manage.py runserver
 
-# 도커 실행
+# 도커 실행 (prod branch)
 pip install docker
 pip install docker-compose
 docker-compose up -d
