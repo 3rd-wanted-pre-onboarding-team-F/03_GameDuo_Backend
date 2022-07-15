@@ -12,6 +12,7 @@ from bossRaid.serializers import (
     BossRaidEndSerializer,
     BossRaidStatusSerializer,
     BossRaidSerializer,
+    GetRequestUserRankingSerializer,
 )
 from bossRaid.models import (
     BossRaidHistory,
@@ -167,7 +168,7 @@ class BossRaidRankingAPI(APIView):
         """
 
         try:
-            user_id = request.GET.get("userId")
+            user_id = request.GET.get("user_id")
             if user_id:
                 user_id = int(user_id)
                 ranking_list = RankingDataService.get_ranking_data()
