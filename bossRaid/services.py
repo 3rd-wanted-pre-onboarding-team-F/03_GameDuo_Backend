@@ -126,7 +126,7 @@ class RankingDataService:
         ranking_dict = cache.get("ranking_dict")
         rank = 1
 
-        for score_key in ranking_dict.keys():
+        for score_key in sorted(ranking_dict.keys(), reverse=True):
             for user in ranking_dict[score_key]:
                 ranking_list.append(
                     {"ranking": rank, "userId": user, "totalScore": score_key}
@@ -145,8 +145,9 @@ class RankingDataService:
         ranking_dict = cache.get("ranking_dict")
         user_ranking = {}
         rank = 1
-
-        for score_key in ranking_dict.keys():
+        user_id = int(user_id)
+    
+        for score_key in sorted(ranking_dict.keys(), reverse=True):
             if user_id in ranking_dict[score_key]:
                 user_ranking["ranking"] = rank
                 user_ranking["userId"] = user_id
