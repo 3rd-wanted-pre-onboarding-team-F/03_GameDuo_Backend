@@ -15,9 +15,10 @@ from bossRaid.serializers import BossRaidHistorySerializer
 class RegisterView(generics.CreateAPIView):
     """
     author : 임혁
-    co-author : 
+    co-author :
     explanation: BossRaid 회원가입 api
     """
+
     queryset = User.objects.all()
     serializer_class = RegisterSerializer
 
@@ -29,13 +30,14 @@ class LoginView(generics.GenericAPIView):
     explanation
     post : 로그인 api
     """
+
     serializer_class = LoginSerializer
 
     @swagger_auto_schema(request_body=user_post_params)
     def post(self, request):
         """
         author : 임혁
-        co-author : 
+        co-author :
         param : request
         return : 200/400 response
         explanation : 입력받은 로그인 정보를 POST 함수로 사용자 인증을 위해 전달
@@ -52,12 +54,12 @@ class TotalScoreView(generics.RetrieveUpdateAPIView):
     co-author :
     explanation : BossRaid 사용자별 총 합 점수 api
     """
+
     queryset = TotalScore.objects.all()
     serializer_class = TotalScoreSerializer
 
 
-class TotalScoreAPI(mixins.RetrieveModelMixin,
-                    viewsets.GenericViewSet):
+class TotalScoreAPI(mixins.RetrieveModelMixin, viewsets.GenericViewSet):
     """
     author : 이승민
     request : Dict
@@ -69,7 +71,7 @@ class TotalScoreAPI(mixins.RetrieveModelMixin,
         aggregate 함수를 사용해서 Boss raid history에 해다 유저의 점수를 전부 더한다.
     """
 
-    lookup_url_kwarg = 'user_id'
+    lookup_url_kwarg = "user_id"
 
     def get_queryset(self):
         return User.objects.all()
@@ -78,21 +80,17 @@ class TotalScoreAPI(mixins.RetrieveModelMixin,
         return TotalScoreSerializer
 
     def retrieve(self, request, *args, **kwargs):
-        pk = self.kwargs['user_id']
+        pk = self.kwargs["user_id"]
         user_id = get_object_or_404(User, pk=pk)
         history = BossRaidHistory.objects.filter(user_id=user_id).all()
         boss_history = BossRaidHistorySerializer(history, many=True)
 
         """ 사용자 상세 조회 시 총합 점수 및 히스토리 반환 """
         user = TotalScore.objects.get(user_id=pk)
-        sum = BossRaidHistory.objects.aggregate(Sum('score'))['score__sum']
+        sum = BossRaidHistory.objects.aggregate(Sum("score"))["score__sum"]
         user.total_score = sum
         user.save()
 
-        res = {
-            'totalScore': sum,
-            'bossRaidHistory': boss_history.data
-        }
+        res = {"totalScore": sum, "bossRaidHistory": boss_history.data}
 
         return Response(res, status=status.HTTP_200_OK)
-

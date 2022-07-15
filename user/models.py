@@ -6,19 +6,21 @@ from django.contrib.auth.models import User
 
 # Create your models here.
 
+
 class TotalScore(models.Model):
     """
     author : 임혁, 이승민
     explanation : User별 total_score(총 합 점수) 출력
     """
+
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    total_score = models.IntegerField('총 합 점수', default=0)
+    total_score = models.IntegerField("총 합 점수", default=0)
 
     class Meta:
-        db_table = 'tb_total_score'
+        db_table = "tb_total_score"
 
     def __str__(self):
-        return f'User = {self.user.username} --- Total Score = {self.total_score}'
+        return f"User = {self.user.username} --- Total Score = {self.total_score}"
 
 
 @receiver(post_save, sender=User)

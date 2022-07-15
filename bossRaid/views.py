@@ -16,21 +16,20 @@ from bossRaid.serializers import (
 from bossRaid.models import (
     BossRaidHistory,
     BossRaidStatus,
-    BossRaid
+    BossRaid,
 )
 from user.serializers import TotalScoreSerializer
 from user.models import (
     TotalScore,
     User,
 )
-from bossRaid.cache_data import RankingDataService
+from .services import RankingDataService
 
 import requests
 import json
 
 
-class BossRaidAPI(mixins.RetrieveModelMixin,
-                  viewsets.GenericViewSet):
+class BossRaidAPI(mixins.RetrieveModelMixin, viewsets.GenericViewSet):
     """
     author : 이승민
     reqeust : Dict
@@ -51,16 +50,18 @@ class BossRaidAPI(mixins.RetrieveModelMixin,
     def retrieve(self, request, *args, **kwargs):
         response = super().retrieve(request, *args, **kwargs)
 
-        url = requests.get('https://dmpilf5svl7rv.cloudfront.net/assignment/backend/bossRaidData.json')
+        url = requests.get(
+            "https://dmpilf5svl7rv.cloudfront.net/assignment/backend/bossRaidData.json"
+        )
 
         if not url.raise_for_status():
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
-        url.encoding = 'utf-8'
-        cache.get_or_set('score_data', url)
+        url.encoding = "utf-8"
+        cache.get_or_set("score_data", url)
 
         res = {
-            'Boss Raid': response.data,
+            "Boss Raid": response.data,
         }
 
         return Response(res, status=status.HTTP_200_OK)
@@ -81,7 +82,7 @@ class BossRaidStartAPI(viewsets.GenericViewSet):
     def get_serializer_class(self):
         return BossRaidStartSerializer
 
-    @action(detail=False, methods=['post'])
+    @action(detail=False, methods=["post"])
     def enter(self, request):
         """
         보스 레이드 시작 API
@@ -89,13 +90,9 @@ class BossRaidStartAPI(viewsets.GenericViewSet):
         serializer = self.get_serializer(data=request.data)
         if serializer.is_valid(raise_exception=True):
             serializer.save()
-            return Response(
-                serializer.data, status=status.HTTP_200_OK
-            )
+            return Response(serializer.data, status=status.HTTP_200_OK)
         else:
-            return Response(
-                status=status.HTTP_400_BAD_REQUEST
-            )
+            return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
 class BossRaidEndAPI(viewsets.GenericViewSet):
@@ -113,7 +110,7 @@ class BossRaidEndAPI(viewsets.GenericViewSet):
     def get_serializer_class(self):
         return BossRaidEndSerializer
 
-    @action(detail=False, methods=['patch'])
+    @action(detail=False, methods=["patch"])
     def end(self, request):
         """
         보스 레이드 종료 API
@@ -121,19 +118,16 @@ class BossRaidEndAPI(viewsets.GenericViewSet):
         serializer = self.get_serializer(data=request.data)
         if serializer.is_valid(raise_exception=True):
             serializer.save()
-            return Response(
-                status=status.HTTP_200_OK
-            )
+            return Response(status=status.HTTP_200_OK)
         else:
-            return Response(
-                status=status.HTTP_400_BAD_REQUEST
-            )
+            return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
 class BossRaidStatusAPI(APIView):
     """
     보스 레이드 status 뷰
     """
+
     def get(self, request):
         try:
             bossraid_status = BossRaidStatus.objects.all()
@@ -141,26 +135,26 @@ class BossRaidStatusAPI(APIView):
 
             result = []
             for info in serializer.data:
-                result.append({
-                    'bossRaidId': info['boss_raid_id'],
-                    'canEnter': BossRaid.objects.filter(id=info['boss_raid_id']).values('is_entered')[0]['is_entered'],
-                    'enteredUserId': info['user_id']
-                })
-            return Response({
-                "status": result
-            }, status=status.HTTP_200_OK)
+                result.append(
+                    {
+                        "bossRaidId": info["boss_raid_id"],
+                        "canEnter": BossRaid.objects.filter(
+                            id=info["boss_raid_id"]
+                        ).values("is_entered")[0]["is_entered"],
+                        "enteredUserId": info["user_id"],
+                    }
+                )
+            return Response({"status": result}, status=status.HTTP_200_OK)
         except Exception as e:
-            return Response({
-                "message": f"{e}"
-            }, status=status.HTTP_400_BAD_REQUEST)
-            
+            return Response({"message": f"{e}"}, status=status.HTTP_400_BAD_REQUEST)
+
 
 class BossRaidRankingAPI(APIView):
     """
     author : 전재완
     explanation : 보스레이드 랭킹 조회 API
     """
-    
+
     def get(self, request):
         """
         author : 전재완
@@ -168,23 +162,19 @@ class BossRaidRankingAPI(APIView):
         return : Response(200/400)
         explanation : list of dictionary 형식의 전체 유저의 보스레이드 랭킹과 점수, dictionary 형의 요청받은 유저의 보스레이드 랭킹과 점수를 포함하는 Response 반환
         """
-        
+
         try:
-            user_id = request.GET.get('userId')
+            user_id = request.GET.get("userId")
             if user_id:
                 user_id = int(user_id)
                 ranking_list = RankingDataService.get_ranking_data()
-                user_ranking = RankingDataService.get_user_ranking_data(request.GET.get('userId'))
-                res = {
-                    'topRankerInfoList' : ranking_list,
-                    'myRankingInfo': user_ranking
-                }
+                user_ranking = RankingDataService.get_user_ranking_data(
+                    request.GET.get("userId")
+                )
+                res = {"topRankerInfoList": ranking_list, "myRankingInfo": user_ranking}
                 return Response(res, status=status.HTTP_200_OK)
             return Response(
-                {"message": "유효하지 않은 user ID 입니다."},
-                status=status.HTTP_400_BAD_REQUEST)
-        except Exception as e:
-            return Response({
-                "message": f"{e}"},
-                status=status.HTTP_400_BAD_REQUEST
+                {"message": "유효하지 않은 user ID 입니다."}, status=status.HTTP_400_BAD_REQUEST
             )
+        except Exception as e:
+            return Response({"message": f"{e}"}, status=status.HTTP_400_BAD_REQUEST)
