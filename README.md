@@ -195,12 +195,22 @@
   ```
   [POST]
   /bossRaid/enter
+  (보스레이드 입장 전에 보스 레이드 게임 접속 API /bossRaid/{game_id}/를 먼저 실행시켜주어야 합니다. game_id = 1, name = '닌자대전')
   ```
   - Request
   ```
+  {
+    "user": 1,
+    "level": 1,
+    "boss_raid": 1
+  }
   ```
   - Response
   ```
+  {
+    "isEntered": false,
+    "raidRecordId": 1
+  }
   ```
 </details>
 <details>
@@ -212,9 +222,16 @@
   ```
   - Request
   ```
+  {
+    "userId": 1,
+    "raidRecordId": 1,
+    "boss_raid": 1
+  }
   ```
   - Response
   ```
+  {
+  }
   ```
 </details>
 <details>
