@@ -76,7 +76,7 @@
 <br>
 
 
-  ### 로직 패턴
+  ###  패턴
 
   <img src="https://user-images.githubusercontent.com/44389424/179135015-a81898a1-e22f-4414-87db-bb264fd20772.jpg"/>
 <br>
@@ -92,50 +92,238 @@
 
 | ID   | URI                     | METHOD | 기능                 |
 | ---- | ----------------------- | ------ | -------------------- |
-| 1    | /user                   | POST   | 유저 생성            |
-| 2    | /user/<int: user_id>    | GET    | 유저 정보 조회       |
-| 3    | /bossRaid               | GET    | 보스레이드 상태 조회 |
-| 4    | /bossRaid/enter         | POST   | 보스레이드 시작      |
-| 5    | /bossRaid/end           | PATCH  | 보스레이드 종료      |
-| 6    | /bossRaid/topRankerList | GET    | 랭킹조회             |
-<br>
+| 1    | /users/register             | POST   | 유저 생성            |
+|2     | /users/login            |POST    | 로그인      |
+| 3   | /users/<int: user_id>    | GET    | 유저 정보 조회       |
+| 4    | /bossRaid               | GET    | 보스레이드 상태 조회 |
+| 5    | /bossRaid/enter         | POST   | 보스레이드 시작      |
+| 6    | /bossRaid/end           | PATCH  | 보스레이드 종료      |
+|7     | /bossRaid/\<int:game_id\>|GET    |보스레이드 접속       |
+| 8    | /bossRaid/topRankerList?user_id=\<int:user_id\> | GET    | 랭킹조회             |
+<details>
+  <summary>1. 유저 생성</summary>
+  
+  ```
+  [POST]
+  users/register
+  ```
+  - Request
+  ```
+  {
+  "username": "testuser",
+  "password": "password@"
+ }
 
+  ```
+  - Response
+  ```
+  SUCCESS {
+  "username": "testuser"
+}
+
+  ```
+</details>
+<details>
+  <summary>2. 로그인</summary>
+  
+  ```
+  [POST]
+  /users/login
+  ```
+  - Request
+  ```
+  {
+  "username": "testuser",
+  "password": "password@"
+}
+
+  ```
+  - Response
+  ```
+  SUCCESS {
+  "username": "testuser"
+}
+
+  ```
+</details>
+<details>
+  <summary>3. 유저 정보 조회</summary>
+  
+  ```
+  [GET]
+  /users/<int: user_id>
+  ```
+  - Response
+  ```
+  SUCCESS {
+    "totalScore": 199,
+    "bossRaidHistory": [
+        {
+            "id": 22,
+            "score": 85,
+            "enter_time": "2022-07-15T14:51:03.665203+09:00",
+            "end_time": "2022-07-15T14:51:03.665203+09:00"
+        },
+        ...
+    ]
+}
+  ```
+</details>
+<details>
+  <summary>4. 보스레이드 상태 조회</summary>
+  
+  ```
+  [GET]
+  /bossRaid 
+  ```
+  - Response
+  ```
+  SUCCESS {
+  "status": [
+    {
+      "bossRaidId": 1,
+      "canEnter": false,
+      "enteredUserId": 103
+    }
+  ]
+
+  ```
+</details>
+<details>
+  <summary>5. 보스레이드 시작</summary>
+  
+  ```
+  [POST]
+  /bossRaid/enter
+  (보스레이드 입장 전에 보스 레이드 게임 접속 API /bossRaid/{game_id}/를 먼저 실행시켜주어야 합니다. game_id = 1, name = '닌자대전')
+  ```
+  - Request
+  ```
+  {
+    "user": 1,
+    "level": 1,
+    "boss_raid": 1
+  }
+  ```
+  - Response
+  ```
+  {
+    "isEntered": false,
+    "raidRecordId": 1
+  }
+  ```
+</details>
+<details>
+  <summary>6. 보스레이드 종료</summary>
+  
+  ```
+  [PATCH]
+  /bossRaid/end
+  ```
+  - Request
+  ```
+  {
+    "userId": 1,
+    "raidRecordId": 1,
+    "boss_raid": 1
+  }
+  ```
+  - Response
+  ```
+  {
+  }
+  ```
+</details>
+<details>
+  <summary>7. 보스레이드 접속</summary>
+  
+  ```
+  [GET]
+  /bossRaid/\<int:game_id\>
+  ```
+  - Response
+  ```
+  SUCCESS {
+  "Boss Raid": {
+    "id": 1,
+    "name": "닌자대전"
+  }
+}
+
+  ```
+</details>
+<details>
+  <summary>8. 랭킹 조회</summary>
+  
+  ```
+  [GET]
+  /bossRaid/topRankerList?user_id=\<int:user_id\>
+  ```
+  - Response
+  ```
+  SUCCESS {
+    "topRankerInfoList": [
+        {
+            "ranking": 1,
+            "userId": 21,
+            "totalScore": 217
+        },
+        {
+            "ranking": 2,
+            "userId": 1,
+            "totalScore": 199
+        },
+        {
+            "ranking": 3,
+            "userId": 45,
+            "totalScore": 190
+        },
+        ...
+    ],
+    "myRankingInfo": {
+        "ranking": 33,
+        "userId": 3,
+        "totalScore": 0
+    }
+}
+  ```
+</details>
+<br><br>
 
 ### ERD
 
 <img src="https://user-images.githubusercontent.com/44389424/178653804-f23aedb0-85ec-4fe5-8ec8-075227eb0ecb.JPG"/>
-<br>
-
-- Users: 회원 정보
+<details>
+<summary>Users: 회원 정보</summary>
 
   | 필드명    | 타입   | 비고 |
   | --------- | ------ | ---- |
   | id        | Int    | PK   |
   | user_name | String |      |
   | password  | String |      |
-<br>
-  
+</details>
 
-- Total Score: 보스레이드에서 얻은 유저 별 총 점수
+<details>
+<summary>Total Score: 보스레이드에서 얻은 유저 별 총 점수</summary>
 
   | 필드명      | 타입 | 비고                   |
   | ----------- | ---- | ---------------------- |
   | id          | Int  | PK                     |
   | user_id     | Int  | Foreign Key (users:id) |
   | total_score | Int  |                        |
-<br>
+</details>
   
-
-- BossRaid: 보스레이드
+<details>
+<summary>BossRaid: 보스레이드</summary>
 
   | 필드명     | 타입    | 비고 |
   | ---------- | ------- | ---- |
   | id         | Int     | PK   |
   | is_entered | Boolean |      |
-<br>
-  
+</details>
 
-- BossRaidHistory: 보스레이드 시작 및 종료 기록
+<details>
+<summary>BossRaidHistory: 보스레이드 시작 및 종료 기록</summary>
 
   | 필드명      | 타입     | 비고                      |
   | ----------- | -------- | ------------------------- |
@@ -146,10 +334,10 @@
   | score       | Int      |                           |
   | enter_time  | Datetime |                           |
   | end_time    | Datetime |                           |
-<br>
+</details>
   
-
-- BossRaidStatus: 보스레이드 상태
+<details>
+<summary>BossRaidStatus: 보스레이드 상태</summary>
 
   | 필드명         | 타입     | 비고                      |
   | -------------- | -------- | ------------------------- |
@@ -158,10 +346,9 @@
   | bossraid_id    | Int      | Foreign Key (bossraid:id) |
   | level          | Int      |                           |
   | last_entertime | Datetime |                           |
-
+</details>
 <br><br>
 </div>
-
 
 
 
@@ -179,8 +366,6 @@
 
 
 
-
-
 ## 실행 방법
 
 ```
@@ -188,6 +373,8 @@
 
 # 로컬에서 바로 서버 구동
 pip install -r requirements.txt
+python manage.py makemigrations
+python manage.py migrate
 python manage.py runserver
 
 # 도커 실행 (prod branch)
@@ -197,8 +384,6 @@ docker-compose up -d
 
 (장고 서버는 15초 대기 시간을 걸었습니다.)
 ```
-
-
 
 
 
@@ -217,16 +402,6 @@ GCP 배포, 테스트 및 동작을 확인하였으며, 비용 등의 이유로 
 
 [API 명세서 (Swagger)]()
 
-<br><br>
-
-
-
-## 테스트 케이스
-
-Pytest-Django로 구현 된 개의 테스트 구현
-
-- 성공 케이스: 개 (통과)
-- 실패 케이스: 개 (통과)  
 <br><br>
 
 
